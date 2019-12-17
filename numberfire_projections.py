@@ -65,7 +65,8 @@ class nf_projections:
         self.data = [
             dict(
                 zip(projection_headers, player_projections[idx]),
-                **{player_header, player}
+                **{player_header: player},
+                **{"Position": position.upper()}
             )
             for idx, player in enumerate(player_names)
         ]
@@ -113,21 +114,33 @@ class nf_projections:
         ]
 
     def convert_projections(self):
-        ## how to deal with non-QB scoring? try to avoid deep indentation
-        ## modularize the scoring calculations and turn this into a list comp?
+        ## modularize the scoring calculations and turn this into a dict comp?
         for row in self.data:
             player = row["Player"]
             proj_points = (
-                self.scoring_system["pass_yds"] * float(row["Passing Yards"])
-                + self.scoring_system["pass_td"] * float(row["Passing Touchdowns"])
-                + self.scoring_system["int"] * float(row["Interceptions Thrown"])
-                + self.scoring_system["rush_yds"] * float(row["Rushing Yards"])
-                + self.scoring_system["rec_yds"] * float(row["Receiving Yards"])
-                + self.scoring_system["rec"] * float(row["Receptions"])
-                + self.scoring_system["rush_td"] * float(row["Rushing Touchdowns"])
-                + self.scoring_system["rec_td"] * float(row["Receiving Touchdowns"])
+                self.calc_qb_projections(row)
+                if row["Position"] == "QB"
+                else self.calc_skill_projections(row)
             )
             self.projections[player] = round(proj_points, 2)
+
+    def calc_qb_projections(self, player_data):
+        return (
+            self.scoring_system["pass_yds"] * float(player_data["Passing Yards"])
+            + self.scoring_system["pass_td"] * float(player_data["Passing Touchdowns"])
+            + self.scoring_system["int"] * float(player_data["Interceptions Thrown"])
+            + self.scoring_system["rush_yds"] * float(player_data["Rushing Yards"])
+            + self.scoring_system["rush_td"] * float(player_data["Rushing Touchdowns"])
+        )
+
+    def calc_skill_projections(self, player_data):
+        return (
+            self.scoring_system["rush_yds"] * float(player_data["Rushing Yards"])
+            + self.scoring_system["rec_yds"] * float(player_data["Receiving Yards"])
+            + self.scoring_system["rec"] * float(player_data["Receptions"])
+            + self.scoring_system["rush_td"] * float(player_data["Rushing Touchdowns"])
+            + self.scoring_system["rec_td"] * float(player_data["Receiving Touchdowns"])
+        )
 
     def _get_scoring_map(self, scoring_system):
         if scoring_system not in self.scoring_map:

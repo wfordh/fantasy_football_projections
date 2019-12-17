@@ -39,77 +39,53 @@ class cbs_projections:
         self.data = list()
         self.projections = dict()
         self.season = season if type(season) == str else str(season)
-        # self.url = None
-
-    # @property
-    # def position(self):
-    #     return self._position
-
-    # @position.setter
-    # def position(self, p):
-    #     if p not in position_types:
-    #         raise ValueError(
-    #             f"Invalid position type. Must be in: {', '.join(position_types)}"
-    #         )
-    #     self._position = p
-    
+        self.base_url = "https://www.cbssports.com/fantasy/football/stats/"
 
     def get_data(self, stat_type, position):
         # combo of make_url and scrape_data
         # needs to handle "all" position type calls
+        if len(self.data) > 0:
+            raise Exception(
+                "Data has already been pulled. Please re-instantiate to pull again."
+            )
+
         if stat_type not in self.stat_types:
-            raise ValueError(f"Invalid stat type. Must be in {', '.join(stat_types)}")
+            raise ValueError(
+                f"Invalid stat type. Must be in {', '.join(self.stat_types)}"
+            )
 
         if stat_type == "ytd":
             stat_url = "ytd/stats/"
         else:
             stat_url = "restofseason/projections/"
 
-        if position not in self.position_types:
+        if position.upper() not in self.position_types:
             raise ValueError(
-                f"Invalid position type. Must be in: {', '.join(position_types)}"
+                f"Invalid position type. Must be in: {', '.join(self.position_types)}"
             )
 
-        if self.scoring_system == 'ppr':
+        if self.scoring_system == "ppr":
             score_type = self.scoring_system
         else:
-            score_type = 'nonppr'
+            score_type = "nonppr"
 
         if position == "all":
             for p in self.pure_positions:
                 position_url = self.make_url(self.season, stat_url, p, score_type)
-                self.data = self.scrape_data(position_url)
+                self.data.extend(self.scrape_data(position_url))
         elif position == "flex":
             position = "RB-WR-TE"
             position_url = self.make_url(self.season, stat_url, position, score_type)
-            self.data = self.scrape_data(position_url)
+            self.data.extend(self.scrape_data(position_url))
         else:
             position_url = self.make_url(self.season, stat_url, position, score_type)
             self.data = self.scrape_data(position_url)
 
-
-    @staticmethod
-    def make_url(season, stat_type, position, score_type):
+    def make_url(self, season, stat_type, position, score_type):
         # make this the default?
         # https://www.cbssports.com/fantasy/football/stats/RB-WR-TE/2019/restofseason/projections/nonppr/
         # allow QB, RB, WR, TE, and flex (=RB/WR/TE)
-        base_url = "https://www.cbssports.com/fantasy/football/stats/"
-        
-        # if self._position not in position_types:
-        #     raise ValueError(
-        #         f"Invalid position type. Must be in: {', '.join(position_types)}"
-        #     )
-        # if self._position == "flex":
-        #     self._position = "RB-WR-TE"
-        # if stat_type not in stat_types:
-        #     raise ValueError(f"Invalid stat type. Must be in {', '.join(stat_types)}")
-
-        # if stat_type == "ytd":
-        #     stat_url = "ytd/stats/"
-        # else:
-        #     stat_url = "restofseason/projections/"
-
-        return base_url + position + f"/{season}/" + stat_type + score_type
+        return self.base_url + position + f"/{season}/" + stat_type + score_type
 
     @staticmethod
     def scrape_data(url):
@@ -168,18 +144,18 @@ class cbs_projections:
                 )
             elif row["Position"] == "TE":
                 proj_points = (
-                    self.scoring_system["rec_yds"] * float(row["Receiving Yards"]) \
-                    + self.scoring_system["rec"] * float(row["Receptions"]) \
-                    + self.scoring_system["rec_td"] * float(row["Receiving Touchdowns"]) \
+                    self.scoring_system["rec_yds"] * float(row["Receiving Yards"])
+                    + self.scoring_system["rec"] * float(row["Receptions"])
+                    + self.scoring_system["rec_td"] * float(row["Receiving Touchdowns"])
                     + self.scoring_system["fumbles"] * float(row["Fumbles Lost"])
-                    )
+                )
             else:
                 proj_points = (
-                    self.scoring_system["rush_yds"] * float(row["Rushing Yards"]) \
-                    + self.scoring_system["rec_yds"] * float(row["Receiving Yards"]) \
-                    + self.scoring_system["rec"] * float(row["Receptions"]) \
-                    + self.scoring_system["rush_td"] * float(row["Rushing Touchdowns"]) \
-                    + self.scoring_system["rec_td"] * float(row["Receiving Touchdowns"]) \
+                    self.scoring_system["rush_yds"] * float(row["Rushing Yards"])
+                    + self.scoring_system["rec_yds"] * float(row["Receiving Yards"])
+                    + self.scoring_system["rec"] * float(row["Receptions"])
+                    + self.scoring_system["rush_td"] * float(row["Rushing Touchdowns"])
+                    + self.scoring_system["rec_td"] * float(row["Receiving Touchdowns"])
                     + self.scoring_system["fumbles"] * float(row["Fumbles Lost"])
                 )
             self.projections[player] = round(proj_points, 2)
