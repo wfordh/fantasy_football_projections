@@ -1,5 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
+from pathlib import Path
+import json
 
 
 class nf_projections:
@@ -33,7 +35,7 @@ class nf_projections:
     # how far does your projection need to outpace the other side in a X for 1 trade
     # where X > 1
     pure_positions = ["QB", "RB", "WR", "TE"]
-    position_types = ["QB", "RB", "WR", "TE", "flex", "all"]
+    position_types = ["QB", "RB", "WR", "TE", "RB/WR", "all"]
 
     def __init__(self, scoring_system):
         self.scoring_system = self._get_scoring_map(scoring_system)
@@ -42,13 +44,28 @@ class nf_projections:
         self.projections = dict()
         self.base_url = "https://www.numberfire.com/nfl/fantasy/remaining-projections/"
 
-    def make_url(self, position):
+    def construct_url(self, position):
         if position == "RB/WR":
             return self.base_url + "rbwr"
         return self.base_url + position.lower()
 
     def get_data(self, position):
-        url = self.make_url(position)
+        # get all positions in one grab
+        if position.upper() not in self.position_types:
+            raise ValueError(
+                f"Invalid position type. Must be in: {', '.join(self.position_types)}"
+            )
+
+        if position == "all":
+            pass
+
+        elif position == "RB/WR":
+            pass
+        else:
+            self.data = self.compile_data(position)
+
+    def compile_data(self, position):
+        url = self.construct_url(position)
         raw_data = self.scrape_data(url)
 
         player_header = self.get_player_header(raw_data)
@@ -56,13 +73,7 @@ class nf_projections:
         player_projections = self.get_player_projections(raw_data)
         projection_headers = self.get_projection_headers(raw_data)
 
-        # data_list = list()
-        # for idx, player in enumerate(player_names):
-        #     player_dict = dict(zip(projection_headers, player_projections[idx]))
-        #     player_dict[player_header] = player
-        #     self.data.append(player_dict)
-
-        self.data = [
+        return [
             dict(
                 zip(projection_headers, player_projections[idx]),
                 **{player_header: player},
@@ -141,6 +152,12 @@ class nf_projections:
             + self.scoring_system["rush_td"] * float(player_data["Rushing Touchdowns"])
             + self.scoring_system["rec_td"] * float(player_data["Receiving Touchdowns"])
         )
+
+    def save_projections(self, file_path):
+        data_folder = Path.cwd()/"data"
+        full_path = data_folder/file_path
+        with open(full_path, 'w') as outfile:
+            json.dump(self.data, outfile)
 
     def _get_scoring_map(self, scoring_system):
         if scoring_system not in self.scoring_map:

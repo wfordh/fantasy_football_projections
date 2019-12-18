@@ -1,5 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
+from pathlib import Path
+import json
 
 
 class cbs_projections:
@@ -42,7 +44,7 @@ class cbs_projections:
         self.base_url = "https://www.cbssports.com/fantasy/football/stats/"
 
     def get_data(self, stat_type, position):
-        # combo of make_url and scrape_data
+        # combo of construct_url and scrape_data
         # needs to handle "all" position type calls
         if len(self.data) > 0:
             raise Exception(
@@ -71,17 +73,17 @@ class cbs_projections:
 
         if position == "all":
             for p in self.pure_positions:
-                position_url = self.make_url(self.season, stat_url, p, score_type)
+                position_url = self.construct_url(self.season, stat_url, p, score_type)
                 self.data.extend(self.scrape_data(position_url))
         elif position == "flex":
             position = "RB-WR-TE"
-            position_url = self.make_url(self.season, stat_url, position, score_type)
+            position_url = self.construct_url(self.season, stat_url, position, score_type)
             self.data.extend(self.scrape_data(position_url))
         else:
-            position_url = self.make_url(self.season, stat_url, position, score_type)
+            position_url = self.construct_url(self.season, stat_url, position, score_type)
             self.data = self.scrape_data(position_url)
 
-    def make_url(self, season, stat_type, position, score_type):
+    def construct_url(self, season, stat_type, position, score_type):
         # make this the default?
         # https://www.cbssports.com/fantasy/football/stats/RB-WR-TE/2019/restofseason/projections/nonppr/
         # allow QB, RB, WR, TE, and flex (=RB/WR/TE)
@@ -159,6 +161,12 @@ class cbs_projections:
                     + self.scoring_system["fumbles"] * float(row["Fumbles Lost"])
                 )
             self.projections[player] = round(proj_points, 2)
+
+    def save_projections(self, file_path):
+        data_folder = Path.cwd()/"data"
+        full_path = data_folder/file_path
+        with open(full_path, 'w') as outfile:
+            json.dump(self.data, outfile)
 
     def _get_scoring_map(self, scoring_system):
         if scoring_system not in self.scoring_map:
