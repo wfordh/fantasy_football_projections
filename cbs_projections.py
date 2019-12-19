@@ -1,7 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 from pathlib import Path
-import json
+import csv
+from time import sleep
+import random
 
 
 class cbs_projections:
@@ -61,7 +63,7 @@ class cbs_projections:
         else:
             stat_url = "restofseason/projections/"
 
-        if position.upper() not in self.position_types:
+        if position not in self.position_types:
             raise ValueError(
                 f"Invalid position type. Must be in: {', '.join(self.position_types)}"
             )
@@ -73,14 +75,19 @@ class cbs_projections:
 
         if position == "all":
             for p in self.pure_positions:
+                sleep(random.uniform(1, 2))
                 position_url = self.construct_url(self.season, stat_url, p, score_type)
                 self.data.extend(self.scrape_data(position_url))
         elif position == "flex":
             position = "RB-WR-TE"
-            position_url = self.construct_url(self.season, stat_url, position, score_type)
+            position_url = self.construct_url(
+                self.season, stat_url, position, score_type
+            )
             self.data.extend(self.scrape_data(position_url))
         else:
-            position_url = self.construct_url(self.season, stat_url, position, score_type)
+            position_url = self.construct_url(
+                self.season, stat_url, position, score_type
+            )
             self.data = self.scrape_data(position_url)
 
     def construct_url(self, season, stat_type, position, score_type):
@@ -163,10 +170,13 @@ class cbs_projections:
             self.projections[player] = round(proj_points, 2)
 
     def save_projections(self, file_path):
-        data_folder = Path.cwd()/"data"
-        full_path = data_folder/file_path
-        with open(full_path, 'w') as outfile:
-            json.dump(self.data, outfile)
+        data_folder = Path.cwd() / "data"
+        full_path = data_folder / file_path
+        with open(full_path, "w") as outfile:
+            field_names = self.data[0].keys()
+            dict_writer = csv.DictWriter(outfile, field_names)
+            dict_writer.writeheader()
+            dict_writer.writerows(self.data)
 
     def _get_scoring_map(self, scoring_system):
         if scoring_system not in self.scoring_map:

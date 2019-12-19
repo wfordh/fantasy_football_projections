@@ -1,7 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
 from pathlib import Path
-import json
+import csv
+from itertools import chain
+from time import sleep
+import random
 
 
 class nf_projections:
@@ -35,7 +38,7 @@ class nf_projections:
     # how far does your projection need to outpace the other side in a X for 1 trade
     # where X > 1
     pure_positions = ["QB", "RB", "WR", "TE"]
-    position_types = ["QB", "RB", "WR", "TE", "RB/WR", "all"]
+    position_types = ["QB", "RB", "WR", "TE", "RB/WR", "flex", "all"]
 
     def __init__(self, scoring_system):
         self.scoring_system = self._get_scoring_map(scoring_system)
@@ -51,20 +54,34 @@ class nf_projections:
 
     def get_data(self, position):
         # get all positions in one grab
-        if position.upper() not in self.position_types:
+        if position not in self.position_types:
             raise ValueError(
                 f"Invalid position type. Must be in: {', '.join(self.position_types)}"
             )
 
         if position == "all":
-            pass
-
+            self.data = list(
+                chain.from_iterable(
+                    [self.compile_data(pos) for pos in self.pure_positions]
+                )
+            )
+        elif position == "flex":
+            self.data = list(
+                chain.from_iterable(
+                    [self.compile_data(pos) for pos in ["rb", "wr", "te"]]
+                )
+            )
         elif position == "RB/WR":
-            pass
+            # unclear if I want this option
+            # if so, remove the 'rb/wr' piece from construct_url
+            self.data = list(
+                chain.from_iterable([self.compile_data(pos) for pos in ["rb", "wr"]])
+            )
         else:
             self.data = self.compile_data(position)
 
     def compile_data(self, position):
+        sleep(random.uniform(1, 2))
         url = self.construct_url(position)
         raw_data = self.scrape_data(url)
 
@@ -77,7 +94,7 @@ class nf_projections:
             dict(
                 zip(projection_headers, player_projections[idx]),
                 **{player_header: player},
-                **{"Position": position.upper()}
+                **{"Position": position.upper()},
             )
             for idx, player in enumerate(player_names)
         ]
@@ -154,10 +171,13 @@ class nf_projections:
         )
 
     def save_projections(self, file_path):
-        data_folder = Path.cwd()/"data"
-        full_path = data_folder/file_path
-        with open(full_path, 'w') as outfile:
-            json.dump(self.data, outfile)
+        data_folder = Path.cwd() / "data"
+        full_path = data_folder / file_path
+        with open(full_path, "w") as outfile:
+            field_names = self.data[0].keys()
+            dict_writer = csv.DictWriter(outfile, field_names)
+            dict_writer.writeheader()
+            dict_writer.writerows(self.data)
 
     def _get_scoring_map(self, scoring_system):
         if scoring_system not in self.scoring_map:
