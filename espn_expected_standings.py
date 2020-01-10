@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+from operator import add
 
 espn_swid = os.environ.get("ESPN_SWID_COOKIE", " ")
 espn_s2 = os.environ.get("ESPN_S2_COOKIE", " ")
@@ -16,14 +17,22 @@ params = {"view": "mMatchup"}  # or whatever
 schedule_resp = requests.get(url, params=params, cookies=cookies)
 schedule = r.json()["schedule"]
 ## get weekly results
-first_week = list()
-for game in schedule[:6]:  # 12 team league -> 6 games
-    first_week.append(game["away"]["teamId"], game["away"]["totalPoints"])
-    first_week.append(game["home"]["teamId"], game["home"]["totalPoints"])
-
 teams_exp_record = dict.fromkeys(team_mapping.keys(), 0)
-for idx, team in enumerate(first_week):
-    teams_exp_record[team_mapping[team[0]]] += idx
+for week_num in range(1, current_week + 1):
+    weekly_points = sorted(
+        [
+            (game[team]["teamId"], game[team]["totalPoints"])
+            for team in ["home", "away"]
+            for game in filter(
+                lambda matchup: matchup["matchupPeriodId"] == week_num, schedule
+            )
+        ],
+        key=lambda tup: tup[1],
+    )
+    teams_exp_record = {
+        team: add(teams_exp_record[team], wins)
+        for team, wins in [(team[0], idx) for idx, team in enumerate(weekly_points)]
+    }
 
 
 ###################
@@ -49,18 +58,3 @@ params = {"view": "mSchedule"}
 league_schedule_resp = requests.get(url, params=params, cookies=cookies)
 league_schedule = league_schedule_resp.json()
 current_week = league_schedule["status"]["currentMatchupPeriod"]
-
-# for week in range of weeks
-# filter down to relevant week
-# get team id and score for each game in the week
-# from list of games, pull out all scores
-# sort by score ascending
-# get number of matchups won (index?)
-# reduce that down to each teams # won
-
-[
-    (game[team]["teamId"], game[team]["totalPoints"])
-    for team in ["home", "away"]
-    for week_num in range(1, current_week + 1)
-    for game in filter(lambda matchup: matchup["matchupPeriodId"] == week_num, schedule)
-]
