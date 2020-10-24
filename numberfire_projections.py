@@ -75,7 +75,9 @@ class nf_projections:
             # unclear if I want this option
             # if so, remove the 'rb/wr' piece from construct_url
             self.data = list(
-                chain.from_iterable([self.compile_data(pos) for pos in ["rb", "wr"]])
+                chain.from_iterable(
+                    [self.compile_data(pos) for pos in ["rb", "wr"]]
+                )
             )
         else:
             self.data = self.compile_data(position)
@@ -178,6 +180,12 @@ class nf_projections:
             dict_writer = csv.DictWriter(outfile, field_names)
             dict_writer.writeheader()
             dict_writer.writerows(self.data)
+
+    def load_projections(self, file_path):
+        data_folder = Path.cwd() / "data"
+        full_path = data_folder / file_path
+        with open(full_path, "r") as infile:
+            pass
 
     def _get_scoring_map(self, scoring_system):
         if scoring_system not in self.scoring_map:

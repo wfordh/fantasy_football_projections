@@ -42,10 +42,11 @@ class cbs_projections:
         # self._position = position
         self.data = list()
         self.projections = dict()
+        # have this default to current somehow?
         self.season = season if type(season) == str else str(season)
         self.base_url = "https://www.cbssports.com/fantasy/football/stats/"
 
-    def get_data(self, stat_type, position):
+    def get_data(self, position, stat_type):
         # combo of construct_url and scrape_data
         # needs to handle "all" position type calls
         if len(self.data) > 0:
@@ -177,6 +178,9 @@ class cbs_projections:
             dict_writer = csv.DictWriter(outfile, field_names)
             dict_writer.writeheader()
             dict_writer.writerows(self.data)
+
+    def load_projections(self, file_path):
+        pass
 
     def _get_scoring_map(self, scoring_system):
         if scoring_system not in self.scoring_map:
