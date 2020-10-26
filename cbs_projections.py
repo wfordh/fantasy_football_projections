@@ -180,7 +180,10 @@ class cbs_projections:
             dict_writer.writerows(self.data)
 
     def load_projections(self, file_path):
-        pass
+        data_folder = Path.cwd() / "data"
+        full_path = data_folder / file_path
+        with open(full_path, "r") as infile:
+            pass
 
     def _get_scoring_map(self, scoring_system):
         if scoring_system not in self.scoring_map:
