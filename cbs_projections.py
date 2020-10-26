@@ -6,7 +6,7 @@ from time import sleep
 import random
 
 
-class cbs_projections:
+class cbsProjections:
     # fill out rest and make aliases for 'half' and 'full'
     scoring_map = {
         "half_ppr": {
@@ -183,7 +183,9 @@ class cbs_projections:
         data_folder = Path.cwd() / "data"
         full_path = data_folder / file_path
         with open(full_path, "r") as infile:
-            pass
+            reader = csv.DictReader(infile)
+            for row in reader:
+                self.data.append(row)
 
     def _get_scoring_map(self, scoring_system):
         if scoring_system not in self.scoring_map:
