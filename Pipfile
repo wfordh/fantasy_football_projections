@@ -10,6 +10,8 @@ requests = "*"
 sleeper-api-wrapper = "*"
 bs4 = "*"
 black = "*"
+halo = "*"
+tqdm = "*"
 
 [requires]
 python_version = "3.6"

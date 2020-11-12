@@ -1,3 +1,8 @@
+import requests
+import os
+import sleeper_wrapper as sleeper
+from tqdm import tqdm
+
 name_suffixes = ("ii", "iii", "iv", "v", "jr", "sr")
 
 
@@ -23,15 +28,25 @@ def merge_projections(cbs_proj, nf_proj):
 
 	# now want {clean_name: {"cbs": name, "nf": name}}
 	cleaned_names = set(nf_cleaned_names).union(cbs_cleaned_names)
-	combined_proj = dict.fromkeys(cleaned_names)
-	for name in cleaned_names:
-		combined_proj[name]["cbs_proj"] = cbs_proj[cbs_cleaned_names["name"]]
-		combined_proj[name]["nf_proj"] = nf_proj[nf_cleaned_names["name"]]
-		combined_proj[name]["position"] = nf_proj[nf_cleaned_names["position"]]
+	combined_proj = dict()
+	missing_names = {"cbs_names": [], "nf_names": []}
+	for name in tqdm(cleaned_names):
+		combined_proj[name] = dict()
+		if name in cbs_cleaned_names.keys():
+			combined_proj[name]["cbs_proj"] = cbs_proj[cbs_cleaned_names[name]]
+		else:
+			missing_names["cbs_names"].append(name)
+		if name in nf_cleaned_names.keys():
+			combined_proj[name]["nf_proj"] = nf_proj[nf_cleaned_names[name]]
+			# not sure if this should be here or elsewhere
+			# combined_proj[name]["position"] = nf_proj[nf_cleaned_names[name]]["position"]
+		else:
+			missing_names["nf_names"].append(name)
 
+	print(missing_names)
 
-def get_sleeper_rosters():
-	pass
+	return combined_proj
+
 
 def sleeper_add_projections():
 	pass
