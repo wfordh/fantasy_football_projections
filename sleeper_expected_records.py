@@ -45,13 +45,31 @@ def main():
             "wins": wins,
             "losses": losses,
             "win_pct": win_pct,
+            "roster_id": roster_id
         }
 
-    pp.pprint(team_exp_records)
+    pp.pprint(
+        sorted(
+            [(team, stats["win_pct"]) for team, stats in team_exp_records.items()],
+            key=lambda tup: tup[1],
+            reverse=True,
+        )
+    )
 
+    # how to structure this data?
+    # team: list of opponents remaining
+    remaining_opponents = dict.fromkeys([roster["roster_id"] for roster in rosters], list())
     for week in trange(current_week, 14):
         # need roster_id and matchup_id for forward looking
-        pass
+        # get matchups
+        weekly_matchups = league.get_matchups(week)
+        # reformat into matchup id: team 1, team 2
+        head_to_head_matchups = dict.fromkeys(set([m["matchup_id"] for m in weekly_matchups]))
+        for matchup in weekly_matchups:
+            matchup_id = matchup["matchup_id"]
+            head_to_head_matchups[matchup_id].append(matchup["roster_id"])
+
+
 
 
 if __name__ == "__main__":
