@@ -59,7 +59,10 @@ def main():
 
     pp.pprint(
         sorted(
-            [(team, stats["win_pct"]) for team, stats in team_exp_records.items()],
+            [
+                (team_info["team_name"], team_info["win_pct"])
+                for team_id, team_info in team_exp_records.items()
+            ],
             key=lambda tup: tup[1],
             reverse=True,
         )
