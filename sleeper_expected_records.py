@@ -7,11 +7,12 @@ from tqdm import tqdm, trange
 
 def main():
     pp = pprint.PrettyPrinter()
-    current_week = 10
+    current_week = 11
     league_id = os.environ.get("SLEEPER_LEAGUE_ID", "")
     league = League(league_id)
 
     # League.get_scoreboards(rosters, matchups, users, score_type, week)
+    # ^ didn't work
     rosters = league.get_rosters()
     roster_id_map = league.map_rosterid_to_ownerid(rosters)
 
@@ -41,11 +42,11 @@ def main():
         team_name = users_dict[owner_id]
         losses = num_matchups - wins
         win_pct = round(wins / num_matchups, 3)
-        team_exp_records[team_name] = {
+        team_exp_records[roster_id] = {
             "wins": wins,
             "losses": losses,
             "win_pct": win_pct,
-            "roster_id": roster_id
+            "team_name": team_name,
         }
 
     pp.pprint(
@@ -56,20 +57,39 @@ def main():
         )
     )
 
-    # how to structure this data?
     # team: list of opponents remaining
-    remaining_opponents = dict.fromkeys([roster["roster_id"] for roster in rosters], list())
+    remaining_opponents = dict.fromkeys([roster["roster_id"] for roster in rosters])
     for week in trange(current_week, 14):
-        # need roster_id and matchup_id for forward looking
-        # get matchups
         weekly_matchups = league.get_matchups(week)
-        # reformat into matchup id: team 1, team 2
-        head_to_head_matchups = dict.fromkeys(set([m["matchup_id"] for m in weekly_matchups]))
-        for matchup in weekly_matchups:
-            matchup_id = matchup["matchup_id"]
-            head_to_head_matchups[matchup_id].append(matchup["roster_id"])
+        team_matchups = {
+            roster["roster_id"]: roster["matchup_id"] for roster in weekly_matchups
+        }
+        matchup_dict = dict()
+        for team, matchup in team_matchups.items():
+            if matchup in matchup_dict:
+                matchup_dict[matchup].append(team)
+            else:
+                matchup_dict[matchup] = [team]
 
+        for matchup, teams in matchup_dict.items():
+            if remaining_opponents[teams[0]]:
+                remaining_opponents[teams[0]].append(teams[1])
+            else:
+                remaining_opponents[teams[0]] = [teams[1]]
+            if remaining_opponents[teams[1]]:
+                remaining_opponents[teams[1]].append(teams[0])
+            else:
+                remaining_opponents[teams[1]] = [teams[0]]
 
+    # combine SoS dict and remaining opponents dict?
+    remaining_sos = dict()
+    for team, opponents in remaining_opponents.items():
+        sos = sum([team_exp_records[oppo]["win_pct"] for oppo in opponents]) / len(
+            opponents
+        )
+        remaining_sos[team_exp_records[team]["team_name"]] = sos
+
+    pp.pprint(remaining_sos)
 
 
 if __name__ == "__main__":
