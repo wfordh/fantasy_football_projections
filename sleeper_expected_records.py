@@ -7,7 +7,7 @@ from tqdm import tqdm, trange
 
 # may try to make this automatic somehow
 parser = argparse.ArgumentParser()
-parser.add_argument("-w", "--week", help="The current week", required=True)
+parser.add_argument("-w", "--week", help="The current week", required=True, type=int)
 
 
 def main():
@@ -32,7 +32,7 @@ def main():
     teams_faced = dict.fromkeys([roster["roster_id"] for roster in rosters])
     # need to track teams faced - why? see oppo win% to date, both real and expected?
 
-    for week in trange(1, current_week):
+    for week in trange(1, current_week, desc="Getting past weeks"):
         weekly_matchups = league.get_matchups(week)
         weekly_points = sorted(
             [(team["roster_id"], team["points"]) for team in weekly_matchups],
@@ -45,7 +45,7 @@ def main():
 
     num_matchups = (current_week - 1) * 11
     team_exp_records = dict()
-    for roster_id, wins in tqdm(expected_wins.items()):
+    for roster_id, wins in tqdm(expected_wins.items(), desc="Expected records"):
         owner_id = roster_id_map[roster_id]
         team_name = users_dict[owner_id]
         losses = num_matchups - wins
@@ -70,7 +70,7 @@ def main():
 
     # team: list of opponents remaining
     remaining_opponents = dict.fromkeys([roster["roster_id"] for roster in rosters])
-    for week in trange(current_week, 14):
+    for week in trange(current_week, 14, desc="Getting future weeks"):
         weekly_matchups = league.get_matchups(week)
         team_matchups = {
             roster["roster_id"]: roster["matchup_id"] for roster in weekly_matchups
@@ -98,8 +98,9 @@ def main():
         sos = sum([team_exp_records[oppo]["win_pct"] for oppo in opponents]) / len(
             opponents
         )
-        remaining_sos[team_exp_records[team]["team_name"]] = sos
+        remaining_sos[team_exp_records[team]["team_name"]] = round(sos, 3)
 
+    # sort?
     pp.pprint(remaining_sos)
 
 
