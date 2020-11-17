@@ -1,13 +1,21 @@
+import argparse
 import os
 import pprint
 from operator import add
 from sleeper_wrapper import League
 from tqdm import tqdm, trange
 
+# may try to make this automatic somehow
+parser = argparse.ArgumentParser()
+parser.add_argument("-w", "--week", help="The current week", required=True)
+
 
 def main():
+    """Script to find expected standings and rest of season schedule strength"""
     pp = pprint.PrettyPrinter()
-    current_week = 11
+    args = parser.parse_args()
+    command_args = dict(vars(args))
+    current_week = command_args.pop("week", None)
     league_id = os.environ.get("SLEEPER_LEAGUE_ID", "")
     league = League(league_id)
 
