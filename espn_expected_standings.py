@@ -13,6 +13,10 @@ url = f"https://fantasy.espn.com/apis/v3/games/ffl/seasons/2019/segments/0/leagu
 params = {"view": "mMatchup"}  # or whatever
 
 # big ups here: https://stmorse.github.io/journal/espn-fantasy-v3.html
+# other ESPN API links: 
+# https://fantasy.espn.com/apis/v3/games/ffl/seasons/2019/segments/0/leagues/21931641?view=mSchedule
+# https://fantasy.espn.com/apis/v3/games/ffl/seasons/2019/segments/0/leagues/21931641?view=mMatchup&matchupPeriodId=11
+
 
 schedule_resp = requests.get(url, params=params, cookies=cookies)
 schedule = r.json()["schedule"]
