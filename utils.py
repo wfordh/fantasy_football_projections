@@ -1,13 +1,12 @@
+import re
 import requests
 import os
 import sleeper_wrapper as sleeper
 from tqdm import tqdm
 
-name_suffixes = ("ii", "iii", "iv", "v", "jr", "sr")
-
 
 def clean_name(player_name):
-    player_name = player_name.lower().replace(".", "").replace("'", "")
+    player_name = re.sub(r"([.' ])", "", player_name.lower())
     name_suffixes = ("jr", "sr", "ii", "iii", "iv", "v")
     return (
         player_name.rsplit(maxsplit=1)[0]

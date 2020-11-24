@@ -2,8 +2,11 @@ import argparse
 import json
 import pprint
 import os
+from halo import Halo
 from sleeper_wrapper import Players, League
 from tqdm import tqdm, trange
+from numberfire_projections import numberfireProjections
+from utils import clean_name
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--dry_run", type=bool, required=True)
@@ -11,8 +14,8 @@ parser.add_argument("-p", "--positions", required=False)
 
 
 def main():
-    league_id = os.environ.get("SLEEPER_LEAGUE_ID", "")
-    user_id = os.environ.get("SLEEPER_USER_ID", "")
+    league_id = os.environ.get("SLEEPER_LEAGUE_ID", None)
+    user_id = os.environ.get("SLEEPER_USER_ID", None)
 
     args = parser.parse_args()
     command_args = dict(vars(args))
@@ -49,7 +52,22 @@ def main():
         if p_id not in rostered_players
     }
     # pull projections
+    nfp = numberfireProjections("half_ppr")
+
+    with Halo("Pulling Numberfire Projections", spinner="dots") as spinner:
+        nfp.get_data("flex")
+        nfp.convert_projections()
+        spinner.succeed()
+
+    nf_cleaned_names = {clean_name(x):x for x in nf_proj.keys()}
     # add projections in to rosters for comparisons
+    for p_id, p_data in free_agents.items():
+        if p_data["search_full_name"] in nf_cleaned_names.keys():
+            p_data["numberfire_projections"] = nfp.projections[nf_cleaned_names[p_data["search_full_name"]]]
+        else:
+            p_data["numberfire_projections"] = 0
+
+    
 
 
 if __name__ == "__main__":
