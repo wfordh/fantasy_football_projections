@@ -15,20 +15,36 @@ from utils import clean_name
 
 # add help descriptions
 parser = argparse.ArgumentParser()
-parser.add_argument("-d", "--dry_run", type=bool, required=True)
-parser.add_argument("-p", "--positions", required=False, nargs="+")
+parser.add_argument(
+    "-d",
+    "--dry_run",
+    type=bool,
+    required=True,
+    help="True if you want to re-pull players from Sleeper",
+)
+parser.add_argument(
+    "-p",
+    "--positions",
+    required=False,
+    nargs="+",
+    help="List of positions to pull. Space separated and no quotes.",
+)
 
 
 def main():
-    league_id = os.environ.get("SLEEPER_LEAGUE_ID", None)
-    user_id = os.environ.get("SLEEPER_USER_ID", None)
+    with Halo("Setting up script details.", spinner="dots") as spinner:
+        league_id = os.environ.get("SLEEPER_LEAGUE_ID", None)
+        user_id = os.environ.get("SLEEPER_USER_ID", None)
 
-    args = parser.parse_args()
-    command_args = dict(vars(args))
-    is_dry_run = command_args.pop("dry_run", None)
-    # log these?
-    keep_positions = tuple(command_args.pop("positions", None))
+        args = parser.parse_args()
+        command_args = dict(vars(args))
+        is_dry_run = command_args.pop("dry_run", None)
+        keep_positions = tuple(command_args.pop("positions", None))
+        spinner.succeed()
 
+    Halo(
+        f"Included positions are {', '.join(keep_positions)}", spinner="dots"
+    ).succeed()
     league = League(league_id)
     players = Players()
 
@@ -55,20 +71,21 @@ def main():
     rostered_player_ids = [
         player for team in league_rosters for player in team["players"]
     ]
-    free_agents = {
-        p_id: p_data
-        for p_id, p_data in keep_players.items()
-        if p_id not in rostered_player_ids
-    }
-    rostered_players = {
-        p_id: p_data
-        for p_id, p_data in keep_players.items()
-        if p_id in rostered_player_ids
-    }
-    # pull projections
-    nfp = numberfireProjections("half_ppr")
+    with Halo("Separating players into rostered and FAs.", spinner="dots") as spinner:
+        free_agents = {
+            p_id: p_data
+            for p_id, p_data in keep_players.items()
+            if p_id not in rostered_player_ids
+        }
+        rostered_players = {
+            p_id: p_data
+            for p_id, p_data in keep_players.items()
+            if p_id in rostered_player_ids
+        }
+        spinner.succeed()
 
     with Halo("Pulling Numberfire Projections", spinner="dots") as spinner:
+        nfp = numberfireProjections("half_ppr")
         nfp.get_data("flex")
         nfp.convert_projections()
         spinner.succeed()
@@ -90,6 +107,7 @@ def main():
             ]
         else:
             p_data["numberfire_projections"] = 0
+    Halo("Added projections to FAs and rostered players.", spinner="dots").succeed()
 
     # comparison
     own_roster = {
@@ -114,6 +132,10 @@ def main():
                 }
                 waiver_dict["players_to_add"].append(fa_dict)
         waiver_players.append(waiver_dict)
+    Halo(
+        "Compared FA projections to your roster. Returning players with better projections.",
+        spinner="dots",
+    ).succeed()
 
     pp = pprint.PrettyPrinter()
     pp.pprint(waiver_players)
