@@ -113,12 +113,11 @@ def main():
     own_roster = {
         p_id: p_data for p_id, p_data in rostered_players.items() if p_id in own_players
     }
-    waiver_players = list()
+    waiver_players = dict()
     for p_id, p_data in own_roster.items():
         if p_data["status"] == "Injured Reserve":
             continue
         waiver_dict = {
-            "drop_player": p_data["search_full_name"],
             "drop_proj": p_data["numberfire_projections"],
             "players_to_add": list(),
         }
@@ -131,7 +130,7 @@ def main():
                     "waiver_proj": fa_data["numberfire_projections"],
                 }
                 waiver_dict["players_to_add"].append(fa_dict)
-        waiver_players.append(waiver_dict)
+        waiver_players[p_data["search_full_name"]] = waiver_dict
     Halo(
         "Compared FA projections to your roster. Returning players with better projections.",
         spinner="dots",
