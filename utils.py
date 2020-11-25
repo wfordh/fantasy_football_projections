@@ -6,13 +6,13 @@ from tqdm import tqdm
 
 
 def clean_name(player_name):
-    player_name = re.sub(r"([.' ])", "", player_name.lower())
-    name_suffixes = ("jr", "sr", "ii", "iii", "iv", "v")
-    return (
-        player_name.rsplit(maxsplit=1)[0]
+	name_suffixes = ("jr", "sr", "ii", "iii", "iv", "v")
+	player_name = re.sub(r"([.'])", "", player_name.lower())
+	player_name = (player_name.rsplit(maxsplit=1)[0]
         if player_name.endswith(name_suffixes)
-        else player_name
-    )
+        else player_name)
+    return re.sub(r"([ ])", "", player_name.lower())
+
 
 def merge_projections(cbs_proj, nf_proj):
 	# what exactly is the cbs_proj and nf_proj?
