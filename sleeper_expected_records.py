@@ -1,3 +1,8 @@
+"""Pulls expected standings and RoS strength of schedule.
+
+more to come
+"""
+
 import argparse
 import os
 import pprint
@@ -11,7 +16,6 @@ parser.add_argument("-w", "--week", help="The current week", required=True, type
 
 
 def main():
-    """Script to find expected standings and rest of season schedule strength"""
     pp = pprint.PrettyPrinter()
     args = parser.parse_args()
     command_args = dict(vars(args))
@@ -19,8 +23,6 @@ def main():
     league_id = os.environ.get("SLEEPER_LEAGUE_ID", "")
     league = League(league_id)
 
-    # League.get_scoreboards(rosters, matchups, users, score_type, week)
-    # ^ didn't work
     rosters = league.get_rosters()
     roster_id_map = league.map_rosterid_to_ownerid(rosters)
 
