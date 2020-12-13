@@ -16,5 +16,6 @@ This repository is all in Python 3.6.9. It is formatted using [black](https://gi
 	- [fftoday](https://www.fftoday.com/rankings/playerwkproj.php?&PosID=20)
 	- [fantasydata](https://fantasydata.com/nfl/fantasy-football-weekly-projections): can do RoS with some work
 	- [fantasysharks](https://www.fantasysharks.com/apps/Projections/SeasonProjections.php?pos=RB)
+	- [fantasysp](https://www.fantasysp.com/projections/football/weekly/RB): only weekly and requires headers
 - Re-factor code in `sleeper_waivers.py` so the business logic is more separate from the UI
 - Add wins over expectation and season to date strength of schedule to `sleeper_expected_records.py`
