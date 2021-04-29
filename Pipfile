@@ -9,9 +9,8 @@ verify_ssl = true
 requests = "*"
 sleeper-api-wrapper = "*"
 bs4 = "*"
-black = "*"
 halo = "*"
 tqdm = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"

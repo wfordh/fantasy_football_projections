@@ -14,8 +14,9 @@ This repository is all in Python 3.6.9. It is formatted using [black](https://gi
 	- [fantasy rundown](https://fantasyrundown.com/weekly-football-rankings/)
 	- [nfl's own projections](https://fantasy.nfl.com/research/projections?position=O&sort=projectedPts&statCategory=projectedStats&statSeason=2020&statType=weekProjectedStats&statWeek=13) - [stack overflow post](https://stackoverflow.com/questions/51785640/scraping-nfl-com-fantasy-football-projections-using-python/51790517)
 	- [fftoday](https://www.fftoday.com/rankings/playerwkproj.php?&PosID=20)
-	- [fantasydata](https://fantasydata.com/nfl/fantasy-football-weekly-projections): can do RoS with some work
+	- [fantasydata](https://fantasydata.com/nfl/fantasy-football-weekly-projections): can do RoS with some work - check that, only shows top 10 over selected area and need premium to get more. Probably skip for now
 	- [fantasysharks](https://www.fantasysharks.com/apps/Projections/SeasonProjections.php?pos=RB)
 	- [fantasysp](https://www.fantasysp.com/projections/football/weekly/RB): only weekly and requires headers
 - Re-factor code in `sleeper_waivers.py` so the business logic is more separate from the UI
 - Add wins over expectation and season to date strength of schedule to `sleeper_expected_records.py`
+- [Google search](https://www.google.com/search?q=fantasy+football+python&rlz=1C5CHFA_enUS873&oq=fantasy+football+python&aqs=chrome..69i57.3426j0j1&sourceid=chrome&ie=UTF-8) for python fantasy football tools
