@@ -10,6 +10,7 @@ This repository is all in Python 3.9.1. It is formatted using [black](https://gi
 - Change names of 'data' and 'projections' attributes and 'get_data' and 'convert_projections' methods to better reflect what they are meant to do
 - What to do in the case of name collision across positions? If two players have same name, then only the last one will be presented in the converted projections
 - Update folder structure for project
+- Add `BaseProjections` class that can then be added onto for the specific websites
 - Projection sources to add - could potentially do async/parallelized pulling of the projections?:
 	- [fantasy rundown](https://fantasyrundown.com/weekly-football-rankings/)
 	- [nfl's own projections](https://fantasy.nfl.com/research/projections?position=O&sort=projectedPts&statCategory=projectedStats&statSeason=2020&statType=weekProjectedStats&statWeek=13) - [stack overflow post](https://stackoverflow.com/questions/51785640/scraping-nfl-com-fantasy-football-projections-using-python/51790517)
@@ -19,5 +20,5 @@ This repository is all in Python 3.9.1. It is formatted using [black](https://gi
 	- [fantasysp](https://www.fantasysp.com/projections/football/weekly/RB): only weekly and requires headers
 - Re-factor code in `sleeper_waivers.py` so the business logic is more separate from the UI
 - Add wins over expectation and season to date strength of schedule to `sleeper_expected_records.py`
-- Lineup optimization with the projections
+- Lineup optimization and predicted matchup points with the projections
 - [Google search](https://www.google.com/search?q=fantasy+football+python&rlz=1C5CHFA_enUS873&oq=fantasy+football+python&aqs=chrome..69i57.3426j0j1&sourceid=chrome&ie=UTF-8) for python fantasy football tools
