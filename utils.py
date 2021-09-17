@@ -15,7 +15,7 @@ def clean_name(player_name):
     )
     return re.sub(r"([ ])", "", player_name)
 
-
+# turn this into **kwargs or something once more projections are added?
 def merge_projections(cbs_proj, nf_proj):
     # what exactly is the cbs_proj and nf_proj?
     # maybe use keyword args and list of projections?
