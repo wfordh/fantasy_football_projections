@@ -9,8 +9,14 @@ verify_ssl = true
 requests = "*"
 sleeper-api-wrapper = "*"
 bs4 = "*"
+urllib3 = "*"
 halo = "*"
+black = "*"
+pipfile = "*"
 tqdm = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.9"
+
+[pipenv]
+allow_prereleases = true
