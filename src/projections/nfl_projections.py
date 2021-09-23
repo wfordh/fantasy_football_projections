@@ -106,8 +106,8 @@ class nflProjections:
         if type(positions) != list:
             positions = [positions]
         # add logging for this
-        # need to programmatically do week somehow...argparse? new sleeper api call?
-        week = 2
+        # does this work?
+        week = requests.get("https://api.sleeper.app/v1/state/nfl").json()["week"]
         for week_num in range(week, 19):
             # go thru all the weeks
             for position in positions:
