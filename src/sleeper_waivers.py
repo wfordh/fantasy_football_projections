@@ -10,8 +10,8 @@ import os
 from halo import Halo
 from sleeper_wrapper import Players, League
 from tqdm import tqdm, trange
-from numberfire_projections import numberfireProjections
-from utils import clean_name
+from projections.numberfire_projections import numberfireProjections
+from utils.utils import clean_name
 
 # add help descriptions
 parser = argparse.ArgumentParser()
