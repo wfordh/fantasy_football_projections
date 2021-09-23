@@ -75,9 +75,7 @@ class numberfireProjections:
             # unclear if I want this option
             # if so, remove the 'rb/wr' piece from construct_url
             self.data = list(
-                chain.from_iterable(
-                    [self.compile_data(pos) for pos in ["rb", "wr"]]
-                )
+                chain.from_iterable([self.compile_data(pos) for pos in ["rb", "wr"]])
             )
         else:
             self.data = self.compile_data(position)

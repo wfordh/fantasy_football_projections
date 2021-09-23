@@ -14,7 +14,16 @@ from tqdm import tqdm, trange
 parser = argparse.ArgumentParser()
 parser.add_argument("-w", "--week", help="The current week", required=True, type=int)
 # not sure this is necessary...
-parser.add_argument("-s", "--score_type", help="Score type.", required=True, type=str, default="half_ppr", options=["standard", "half_ppr", "ppr"])
+parser.add_argument(
+    "-s",
+    "--score_type",
+    help="Score type.",
+    required=True,
+    type=str,
+    default="half_ppr",
+    options=["standard", "half_ppr", "ppr"],
+)
+
 
 def main():
     pp = pprint.PrettyPrinter()
