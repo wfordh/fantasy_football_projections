@@ -13,7 +13,8 @@ from tqdm import tqdm, trange
 # may try to make this automatic somehow
 parser = argparse.ArgumentParser()
 parser.add_argument("-w", "--week", help="The current week", required=True, type=int)
-
+# not sure this is necessary...
+parser.add_argument("-s", "--score_type", help="Score type.", required=True, type=str, default="half_ppr", options=["standard", "half_ppr", "ppr"])
 
 def main():
     pp = pprint.PrettyPrinter()
@@ -29,7 +30,7 @@ def main():
     users = league.get_users()
     users_dict = league.map_users_to_team_name(users)
 
-    score_type = "pts_half_ppr"
+    score_type = command_args.pop("score_type", None)
     expected_wins = dict.fromkeys([roster["roster_id"] for roster in rosters], 0)
     teams_faced = dict.fromkeys([roster["roster_id"] for roster in rosters])
     # need to track teams faced - why? see oppo win% to date, both real and expected?
