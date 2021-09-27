@@ -131,10 +131,16 @@ class cbsProjections:
                         .get_text()
                         .strip()
                     )
+					player_team = (
+						elem.find("span", {"class": "CellPlayerName-team"})
+						.get_text()
+						.strip()
+					)
                 else:
                     player_data.append(elem.get_text().strip())
             player_dict = dict(zip(cbs_headers, player_data))
             player_dict["Position"] = player_pos
+			player_dict["team"] = player_team
             projection_list.append(player_dict)
 
         return projection_list
