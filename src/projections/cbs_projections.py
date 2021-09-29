@@ -174,9 +174,14 @@ class cbsProjections:
                     + self.scoring_system["rec_td"] * float(row["Receiving Touchdowns"])
                     + self.scoring_system["fumbles"] * float(row["Fumbles Lost"])
                 )
-            self.projections[player] = round(proj_points, 2)
+            self.projections[player] = {
+				"team": row["team"],
+				"position": row["Position"],
+				"proj_pts": round(proj_points, 2)
+			}
 
     def save_projections(self, file_path):
+		# will need to update now that data structure of projections has changed
         data_folder = Path.cwd() / "data"
         full_path = data_folder / file_path
         with open(full_path, "w") as outfile:
