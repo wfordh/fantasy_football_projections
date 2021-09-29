@@ -33,6 +33,8 @@ class nflProjections:
         "standard": {},
     }
 
+    offset_map = {"QB": 2, "RB": 3, "WR": 4, "TE": 2}
+
     pure_positions = ["QB", "RB", "WR", "TE"]
     position_types = ["QB", "RB", "WR", "TE", "RB/WR", "flex", "all"]
     position_map = {"QB": 1, "RB": 2, "WR": 3, "TE": 4}
@@ -114,7 +116,7 @@ class nflProjections:
                 # go thru all requested positions
 
                 # set this somewhere else? dynamically for position?
-                num_offsets = 2
+                num_offsets = self.offset_map[position]
                 for offset in range(num_offsets):
                     # go thru all the offsets...remember, 25*n + 1
                     self.construct_params(
