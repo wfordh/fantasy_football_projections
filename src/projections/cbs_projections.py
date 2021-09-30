@@ -37,7 +37,7 @@ class cbsProjections:
 	position_types = ["QB", "RB", "WR", "TE", "flex", "all"]
 	stat_types = ["ytd", "restofseason", "projections", "ros"]
 
-	def __init__(self, scoring_system, season=2019):
+	def __init__(self, scoring_system, season=2021):
 		self.scoring_system = self._get_scoring_map(scoring_system)
 		# self._position = position
 		self.data = list()
