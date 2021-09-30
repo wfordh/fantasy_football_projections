@@ -5,6 +5,7 @@ import csv
 from itertools import chain
 from time import sleep
 import random
+import re
 
 
 class numberfireProjections:
@@ -87,16 +88,19 @@ class numberfireProjections:
 
         player_header = self.get_player_header(raw_data)
         player_names = self.get_player_names(raw_data)
+        player_teams = self.get_player_teams(raw_data)
         player_projections = self.get_player_projections(raw_data)
         projection_headers = self.get_projection_headers(raw_data)
+        player_data = zip(player_names, player_teams)
 
         return [
             dict(
                 zip(projection_headers, player_projections[idx]),
-                **{player_header: player},
-                **{"Position": position.upper()},
+                **{player_header: player[0]},
+                **{"position": position.upper()},
+                **{"team": player[1]},
             )
-            for idx, player in enumerate(player_names)
+            for idx, player in enumerate(player_data)
         ]
 
     @staticmethod
@@ -125,6 +129,13 @@ class numberfireProjections:
         ]
 
     @staticmethod
+    def get_player_teams(data):
+        return [
+            re.findall(r"[A-Z]+", td.a.next_sibling.strip())[1]
+            for td in data.find("table").find("tbody").find_all("td")
+        ]
+
+    @staticmethod
     def get_player_projections(data):
         return [
             [td.get_text().strip() for td in tr.find_all("td")]
@@ -147,10 +158,14 @@ class numberfireProjections:
             player = row["Player"]
             proj_points = (
                 self.calc_qb_projections(row)
-                if row["Position"] == "QB"
+                if row["position"] == "QB"
                 else self.calc_skill_projections(row)
             )
-            self.projections[player] = round(proj_points, 2)
+            self.projections[player] = {
+				'team': row['team'],
+				'position': row['position'],
+				'proj_pts': round(proj_points, 2)
+			}
 
     def calc_qb_projections(self, player_data):
         return (
