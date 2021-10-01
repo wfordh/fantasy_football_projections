@@ -130,12 +130,18 @@ class numberfireProjections:
 
     @staticmethod
     def get_player_teams(data):
-        teams = [
+        raw_teams = [
             re.findall(r"[A-Z]+", td.a.next_sibling.strip())[1]
             for td in data.find("table").find("tbody").find_all("td")
         ]
-		# dumb mapping to make LA -> LAR
-		return [team for team in teams if team != "LA" else "LAR"]
+        # dumb mapping to make LA -> LAR
+        player_teams = list()
+        for tm in raw_teams:
+            if tm == "LA":
+                player_teams.append("LAR")
+            else:
+                player_teams.append(tm)
+        return player_teams
 
     @staticmethod
     def get_player_projections(data):
@@ -164,10 +170,10 @@ class numberfireProjections:
                 else self.calc_skill_projections(row)
             )
             self.projections[player] = {
-				'team': row['team'],
-				'position': row['position'],
-				'proj_pts': round(proj_points, 2)
-			}
+                "team": row["team"],
+                "position": row["position"],
+                "proj_pts": round(proj_points, 2),
+            }
 
     def calc_qb_projections(self, player_data):
         return (
