@@ -130,10 +130,12 @@ class numberfireProjections:
 
     @staticmethod
     def get_player_teams(data):
-        return [
+        teams = [
             re.findall(r"[A-Z]+", td.a.next_sibling.strip())[1]
             for td in data.find("table").find("tbody").find_all("td")
         ]
+		# dumb mapping to make LA -> LAR
+		return [team for team in teams if team != "LA" else "LAR"]
 
     @staticmethod
     def get_player_projections(data):

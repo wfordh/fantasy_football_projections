@@ -84,6 +84,7 @@ class nflProjections:
 			name = player.find("a", "playerCard")
 			try:
 				team = player.find("em").text.split(" - ")[1]
+				team = team if team != "LA" else "LAR"
 			except (IndexError, AttributeError):
 				team = None
 			# how is position getting here?
