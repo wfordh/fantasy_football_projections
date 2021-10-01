@@ -7,3 +7,6 @@ __pycache__/
 
 # Ignore python-version
 .python-version
+
+# Ignore .swp files
+*.swp
