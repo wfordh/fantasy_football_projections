@@ -80,11 +80,13 @@ class cbsProjections:
 				position_url = self.construct_url(self.season, stat_url, p, score_type)
 				self.data.extend(self.scrape_data(position_url))
 		elif position == "flex":
-			position = "RB-WR-TE"
-			position_url = self.construct_url(
-				self.season, stat_url, position, score_type
-			)
-			self.data.extend(self.scrape_data(position_url))
+			positions = ["RB", "WR", "TE"]
+			for p in positions:
+				sleep(random.uniform(0.7, 1.2))
+				position_url = self.construct_url(
+					self.season, stat_url, p, score_type
+				)
+				self.data.extend(self.scrape_data(position_url))
 		else:
 			position_url = self.construct_url(
 				self.season, stat_url, position, score_type
@@ -166,14 +168,24 @@ class cbsProjections:
 					+ self.scoring_system["fumbles"] * float(row["Fumbles Lost"])
 				)
 			else:
-				proj_points = (
-					self.scoring_system["rush_yds"] * float(row["Rushing Yards"])
-					+ self.scoring_system["rec_yds"] * float(row["Receiving Yards"])
-					+ self.scoring_system["rec"] * float(row["Receptions"])
-					+ self.scoring_system["rush_td"] * float(row["Rushing Touchdowns"])
-					+ self.scoring_system["rec_td"] * float(row["Receiving Touchdowns"])
-					+ self.scoring_system["fumbles"] * float(row["Fumbles Lost"])
-				)
+				try:
+					proj_points = (
+						self.scoring_system["rush_yds"] * float(row["Rushing Yards"])
+						+ self.scoring_system["rec_yds"] * float(row["Receiving Yards"])
+						+ self.scoring_system["rec"] * float(row["Receptions"])
+						+ self.scoring_system["rush_td"] * float(row["Rushing Touchdowns"])
+						+ self.scoring_system["rec_td"] * float(row["Receiving Touchdowns"])
+						+ self.scoring_system["fumbles"] * float(row["Fumbles Lost"])
+					)
+				except KeyError:
+					# workaround until I think of something better for Gio Ricci...listed as FB but on TE page
+					proj_points = (
+						self.scoring_system["rec_yds"] * float(row["Receiving Yards"])
+						+ self.scoring_system["rec"] * float(row["Receptions"])
+						+ self.scoring_system["rec_td"] * float(row["Receiving Touchdowns"])
+						+ self.scoring_system["fumbles"] * float(row["Fumbles Lost"])
+					)
+
 			self.projections[player] = {
 				"team": row["team"],
 				"position": row["Position"],
