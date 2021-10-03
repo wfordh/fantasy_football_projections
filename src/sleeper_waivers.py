@@ -10,8 +10,7 @@ import os
 from halo import Halo
 from sleeper_wrapper import Players, League
 from tqdm import tqdm, trange
-from projections.numberfire_projections import numberfireProjections
-from utils.utils import clean_name
+from utils.utils import combine_projections
 
 # add help descriptions
 parser = argparse.ArgumentParser()
@@ -76,7 +75,7 @@ def main():
         free_agents = {
             p_id: p_data
             for p_id, p_data in keep_players.items()
-            if p_id not in rostered_player_ids
+            if p_id not in rostered_player_ids and p_data["team"] is not None
         }
         rostered_players = {
             p_id: p_data
@@ -85,29 +84,33 @@ def main():
         }
         spinner.succeed()
 
-    with Halo("Pulling Numberfire Projections", spinner="dots") as spinner:
-        nfp = numberfireProjections("half_ppr")
-        nfp.get_data("flex")
-        nfp.convert_projections()
+    with Halo("Pulling projections", spinner="dots") as spinner:
+        combined_proj = combine_projections(keep_positions)
         spinner.succeed()
 
-    nf_cleaned_names = {clean_name(x): x for x in nfp.projections.keys()}
+    cleaned_names = combined_proj.keys()
     # add projections in to rosters
     for p_id, p_data in free_agents.items():
-        if p_data["search_full_name"] in nf_cleaned_names.keys():
-            p_data["numberfire_projections"] = nfp.projections[
-                nf_cleaned_names[p_data["search_full_name"]]
+        # workaround for players who aren't in all 3
+        # if p_data["search_full_name"] in cleaned_names:
+        try:
+            p_data["projections"] = combined_proj[p_data["search_full_name"]][
+                "avg_proj_pts"
             ]
-        else:
-            p_data["numberfire_projections"] = 0
+
+        # else:
+        except KeyError:
+            p_data["projections"] = 0
 
     for p_id, p_data in rostered_players.items():
-        if p_data["search_full_name"] in nf_cleaned_names.keys():
-            p_data["numberfire_projections"] = nfp.projections[
-                nf_cleaned_names[p_data["search_full_name"]]
+        # if p_data["search_full_name"] in cleaned_names:
+        try:
+            p_data["projections"] = combined_proj[p_data["search_full_name"]][
+                "avg_proj_pts"
             ]
-        else:
-            p_data["numberfire_projections"] = 0
+        # else:
+        except KeyError:
+            p_data["projections"] = 0
     Halo("Added projections to FAs and rostered players.", spinner="dots").succeed()
 
     # comparison
@@ -119,19 +122,19 @@ def main():
         if p_data["status"] == "Injured Reserve":
             continue
         waiver_dict = {
-            "drop_proj": p_data["numberfire_projections"],
+            "drop_proj": p_data["projections"],
             "players_to_add": list(),
         }
         # don't look at FA if projection is 0
-        if p_data["numberfire_projections"] == 0:
+        if p_data["projections"] == 0:
             continue
         for fa_id, fa_data in free_agents.items():
-            if (
-                fa_data["numberfire_projections"] > p_data["numberfire_projections"]
-            ) and (fa_data["position"] == p_data["position"]):
+            if (fa_data["projections"] > 0.95 * p_data["projections"]) and (
+                fa_data["position"] == p_data["position"]
+            ):
                 fa_dict = {
                     "waiver_player": fa_data["search_full_name"],
-                    "waiver_proj": fa_data["numberfire_projections"],
+                    "waiver_proj": fa_data["projections"],
                 }
                 waiver_dict["players_to_add"].append(fa_dict)
         waiver_players[p_data["search_full_name"]] = waiver_dict

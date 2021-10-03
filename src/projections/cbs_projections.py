@@ -46,6 +46,24 @@ class cbsProjections:
         self.season = season if type(season) == str else str(season)
         self.base_url = "https://www.cbssports.com/fantasy/football/stats/"
 
+    def _check_position(self, position):
+        if position not in self.position_types:
+            raise ValueError(
+                f"Invalid position type ({position}). Must be in: {', '.join(self.position_types)}"
+            )
+
+    def _convert_position_list(self, positions):
+        sort_posns = sorted(positions)
+        converted_posns = None
+        # no rb/wr group for CBS
+        if sort_posns == ["RB", "TE", "WR"]:
+            converted_posn == "flex"
+        elif sort_posns == ["QB", "RB", "TE", "WR"]:
+            converted_posns = "all"
+        else:
+            converted_posns = positions
+        return converted_posns
+
     def get_data(self, position, stat_type):
         # combo of construct_url and scrape_data
         # needs to handle "all" position type calls
@@ -64,10 +82,13 @@ class cbsProjections:
         else:
             stat_url = "restofseason/projections/"
 
-        if position not in self.position_types:
-            raise ValueError(
-                f"Invalid position type. Must be in: {', '.join(self.position_types)}"
-            )
+        if len(position) > 1:
+            [self._check_position(posn) for posn in position]
+            # reset positions as list to their relevant strings
+            position = self._convert_position_list(positions)
+        else:
+            position = position[0]
+            self._check_position(position)
 
         if self.scoring_system == "ppr":
             score_type = self.scoring_system
@@ -81,6 +102,12 @@ class cbsProjections:
                 self.data.extend(self.scrape_data(position_url))
         elif position == "flex":
             positions = ["RB", "WR", "TE"]
+            for p in positions:
+                sleep(random.uniform(0.7, 1.2))
+                position_url = self.construct_url(self.season, stat_url, p, score_type)
+                self.data.extend(self.scrape_data(position_url))
+        elif type(position) == list and len(position) > 1:
+            # for gathering data for combos such as RB, TE
             for p in positions:
                 sleep(random.uniform(0.7, 1.2))
                 position_url = self.construct_url(self.season, stat_url, p, score_type)

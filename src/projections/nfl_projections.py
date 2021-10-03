@@ -110,10 +110,10 @@ class nflProjections:
             positions = ["RB", "WR", "TE"]
         if positions == "all":
             positions = self.pure_positions
-        if type(positions) != list:
+        if type(positions) not in [list, tuple]:
             positions = [positions]
         # add logging for this
-        # does this work?
+        # does this work? Add to sleeper_api when I move it into my repo
         week = requests.get("https://api.sleeper.app/v1/state/nfl").json()["week"]
         for week_num in range(week, 19):
             # go thru all the weeks

@@ -53,12 +53,34 @@ class numberfireProjections:
             return self.base_url + "rbwr"
         return self.base_url + position.lower()
 
-    def get_data(self, position):
-        # get all positions in one grab
+    def _check_position(self, position):
         if position not in self.position_types:
             raise ValueError(
-                f"Invalid position type. Must be in: {', '.join(self.position_types)}"
+                f"Invalid position type ({position}). Must be in: {', '.join(self.position_types)}"
             )
+
+    def _convert_position_list(self, positions):
+        sort_posns = sorted(positions)
+        converted_posns = None
+        if sort_posns == ["RB", "WR"]:
+            converted_posn = "RB/WR"
+        elif sort_posns == ["RB", "TE", "WR"]:
+            converted_posn == "flex"
+        elif sort_posns == ["QB", "RB", "TE", "WR"]:
+            converted_posns = "all"
+        else:
+            converted_posns = positions
+        return converted_posns
+
+    def get_data(self, position):
+        # get all positions in one grab
+        if len(position) > 1:
+            [self._check_position(posn) for posn in position]
+            # reset positions as list to their relevant strings
+            position = self._convert_position_list(positions)
+        else:
+            position = position[0]
+            self._check_position(position)
 
         if position == "all":
             self.data = list(
