@@ -19,4 +19,6 @@ This repository is all in Python 3.9.1. It is formatted using [black](https://gi
 - Re-factor code in `sleeper_waivers.py` so the business logic is more separate from the UI
 - Add wins over expectation and season to date strength of schedule to `sleeper_expected_records.py`
 - Lineup optimization and predicted matchup points with the projections
+- Get `sleeper_wrapper` to be local since package is not being maintained.
+- Pull projections independently of waivers?
 - [Google search](https://www.google.com/search?q=fantasy+football+python&rlz=1C5CHFA_enUS873&oq=fantasy+football+python&aqs=chrome..69i57.3426j0j1&sourceid=chrome&ie=UTF-8) for python fantasy football tools
