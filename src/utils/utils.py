@@ -1,3 +1,4 @@
+import csv
 import re
 import requests
 import os
@@ -108,11 +109,16 @@ def combine_projections(positions: Union[List, str], all_proj: bool = True):
             ) / 3
         else:
             players_not_all_sources.append(player)
-        if player == "austinekeler":
-            print(combined_proj[player])
 
     with open("./data/combined_projections_test.json", "w") as outfile:
         json.dump(combined_proj, outfile)
+
+    with open(
+        f"./data/combined_projections_missing_players_{'_'.join(positions)}.csv", "w"
+    ) as outfile:
+        player_writer = csv.writer(outfile)
+        for player in players_not_all_sources:
+            player_writer.writerow([player])
 
     return combined_proj
 

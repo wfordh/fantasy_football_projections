@@ -39,6 +39,10 @@ def main():
         command_args = dict(vars(args))
         is_dry_run = command_args.pop("dry_run", None)
         keep_positions = tuple(command_args.pop("positions", None))
+        if keep_positions == ("all",):
+            keep_positions = ["QB", "RB", "WR", "TE"]
+        elif keep_positions == ("flex",):
+            keep_positions = ["QB", "RB", "WR", "TE"]
         spinner.succeed()
 
     Halo(

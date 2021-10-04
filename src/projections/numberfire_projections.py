@@ -75,9 +75,9 @@ class numberfireProjections:
     def get_data(self, position):
         # get all positions in one grab
         if len(position) > 1:
-            [self._check_position(posn) for posn in position]
             # reset positions as list to their relevant strings
             position = self._convert_position_list(positions)
+            [self._check_position(posn) for posn in position]
         else:
             position = position[0]
             self._check_position(position)
@@ -161,6 +161,8 @@ class numberfireProjections:
         for tm in raw_teams:
             if tm == "LA":
                 player_teams.append("LAR")
+            elif tm == "WSH":
+                player_teams.append("WAS")
             else:
                 player_teams.append(tm)
         return player_teams
