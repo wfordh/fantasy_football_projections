@@ -75,9 +75,9 @@ class numberfireProjections:
     def get_data(self, position):
         # get all positions in one grab
         if len(position) > 1:
-            # reset positions as list to their relevant strings
-            position = self._convert_position_list(positions)
             [self._check_position(posn) for posn in position]
+            # reset positions as list to their relevant strings
+            position = self._convert_position_list(position)
         else:
             position = position[0]
             self._check_position(position)
@@ -99,6 +99,10 @@ class numberfireProjections:
             # if so, remove the 'rb/wr' piece from construct_url
             self.data = list(
                 chain.from_iterable([self.compile_data(pos) for pos in ["rb", "wr"]])
+            )
+        elif type(position) != str and len(position) > 1:
+            self.data = list(
+                chain.from_iterable([self.compile_data(pos) for pos in position])
             )
         else:
             self.data = self.compile_data(position)

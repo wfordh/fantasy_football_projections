@@ -85,7 +85,7 @@ class cbsProjections:
         if len(position) > 1:
             [self._check_position(posn) for posn in position]
             # reset positions as list to their relevant strings
-            position = self._convert_position_list(positions)
+            position = self._convert_position_list(position)
         else:
             position = position[0]
             self._check_position(position)
@@ -106,9 +106,9 @@ class cbsProjections:
                 sleep(random.uniform(0.7, 1.2))
                 position_url = self.construct_url(self.season, stat_url, p, score_type)
                 self.data.extend(self.scrape_data(position_url))
-        elif type(position) == list and len(position) > 1:
+        elif type(position) != str and len(position) > 1:
             # for gathering data for combos such as RB, TE
-            for p in positions:
+            for p in position:
                 sleep(random.uniform(0.7, 1.2))
                 position_url = self.construct_url(self.season, stat_url, p, score_type)
                 self.data.extend(self.scrape_data(position_url))

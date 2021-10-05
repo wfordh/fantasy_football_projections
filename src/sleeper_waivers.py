@@ -38,7 +38,7 @@ def main():
         args = parser.parse_args()
         command_args = dict(vars(args))
         is_dry_run = command_args.pop("dry_run", None)
-        keep_positions = tuple(command_args.pop("positions", None))
+        keep_positions = tuple(command_args.pop("positions", None).pop().split(","))
         if keep_positions == ("all",):
             keep_positions = ["QB", "RB", "WR", "TE"]
         elif keep_positions == ("flex",):
