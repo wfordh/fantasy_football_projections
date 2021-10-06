@@ -84,6 +84,10 @@ class nflProjections:
             name = player.find("a", "playerCard")
             try:
                 team = player.find("em").text.split(" - ")[1]
+                if team == "LA":
+                    team = "LAR"
+                elif team == "JAX":
+                    team = "JAC"
             except (IndexError, AttributeError):
                 team = None
             # how is position getting here?
@@ -105,16 +109,21 @@ class nflProjections:
     # run through players on first 2 pages for QB, 3 for RB / TE, 4 for WR
     # roll up players for all weeks
     def compile_data(self, positions):
-        if type(positions) != list:
+        if type(positions) in [tuple, list] and len(positions) == 1:
+            positions = positions[0]
+        if positions == "flex":
+            positions = ["RB", "WR", "TE"]
+        if positions == "all":
+            positions = self.pure_positions
+        if type(positions) not in [list, tuple]:
             positions = [positions]
         # add logging for this
-        # does this work?
+        # does this work? Add to sleeper_api when I move it into my repo
         week = requests.get("https://api.sleeper.app/v1/state/nfl").json()["week"]
         for week_num in range(week, 19):
             # go thru all the weeks
             for position in positions:
                 # go thru all requested positions
-
                 # set this somewhere else? dynamically for position?
                 num_offsets = self.offset_map[position]
                 for offset in range(num_offsets):
@@ -135,12 +144,15 @@ class nflProjections:
             else:
                 week_proj_pts = self.calc_skill_projections(row["player_data"])
             if player in self.projections.keys():
-                self.projections[player] += week_proj_pts
+                self.projections[player]["proj_pts"] += week_proj_pts
             else:
-                self.projections[player] = week_proj_pts
+                self.projections[player] = {}
+                self.projections[player]["proj_pts"] = week_proj_pts
+                self.projections[player]["team"] = row["team"]
+                self.projections[player]["position"] = row["position"]
 
-        for player, proj_pts in self.projections.items():
-            self.projections[player] = round(proj_pts, 2)
+        for player, data in self.projections.items():
+            self.projections[player]["proj_pts"] = round(data["proj_pts"], 2)
 
     def calc_qb_projections(self, player_data):
         return (

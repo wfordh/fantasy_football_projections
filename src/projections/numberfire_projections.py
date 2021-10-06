@@ -53,12 +53,34 @@ class numberfireProjections:
             return self.base_url + "rbwr"
         return self.base_url + position.lower()
 
-    def get_data(self, position):
-        # get all positions in one grab
+    def _check_position(self, position):
         if position not in self.position_types:
             raise ValueError(
-                f"Invalid position type. Must be in: {', '.join(self.position_types)}"
+                f"Invalid position type ({position}). Must be in: {', '.join(self.position_types)}"
             )
+
+    def _convert_position_list(self, positions):
+        sort_posns = sorted(positions)
+        converted_posns = None
+        if sort_posns == ["RB", "WR"]:
+            converted_posns = "RB/WR"
+        elif sort_posns == ["RB", "TE", "WR"]:
+            converted_posns = "flex"
+        elif sort_posns == ["QB", "RB", "TE", "WR"]:
+            converted_posns = "all"
+        else:
+            converted_posns = positions
+        return converted_posns
+
+    def get_data(self, position):
+        # get all positions in one grab
+        if len(position) > 1:
+            [self._check_position(posn) for posn in position]
+            # reset positions as list to their relevant strings
+            position = self._convert_position_list(position)
+        else:
+            position = position[0]
+            self._check_position(position)
 
         if position == "all":
             self.data = list(
@@ -77,6 +99,10 @@ class numberfireProjections:
             # if so, remove the 'rb/wr' piece from construct_url
             self.data = list(
                 chain.from_iterable([self.compile_data(pos) for pos in ["rb", "wr"]])
+            )
+        elif type(position) != str and len(position) > 1:
+            self.data = list(
+                chain.from_iterable([self.compile_data(pos) for pos in position])
             )
         else:
             self.data = self.compile_data(position)
@@ -130,10 +156,20 @@ class numberfireProjections:
 
     @staticmethod
     def get_player_teams(data):
-        return [
+        raw_teams = [
             re.findall(r"[A-Z]+", td.a.next_sibling.strip())[1]
             for td in data.find("table").find("tbody").find_all("td")
         ]
+        # dumb mapping to make LA -> LAR
+        player_teams = list()
+        for tm in raw_teams:
+            if tm == "LA":
+                player_teams.append("LAR")
+            elif tm == "WSH":
+                player_teams.append("WAS")
+            else:
+                player_teams.append(tm)
+        return player_teams
 
     @staticmethod
     def get_player_projections(data):
@@ -162,10 +198,10 @@ class numberfireProjections:
                 else self.calc_skill_projections(row)
             )
             self.projections[player] = {
-				'team': row['team'],
-				'position': row['position'],
-				'proj_pts': round(proj_points, 2)
-			}
+                "team": row["team"],
+                "position": row["position"],
+                "proj_pts": round(proj_points, 2),
+            }
 
     def calc_qb_projections(self, player_data):
         return (
