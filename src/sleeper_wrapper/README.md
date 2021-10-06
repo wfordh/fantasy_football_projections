@@ -1,3 +1,6 @@
+*This is the README from the original repository. It has not been changed, but any additional changes to the local version of the code will be done by me, @wfordh.*
+
+
 [![Build Status](https://travis-ci.org/SwapnikKatkoori/sleeper-api-wrapper.svg?branch=master)](https://travis-ci.org/SwapnikKatkoori/sleeper-api-wrapper)
 ![GitHub](https://img.shields.io/github/license/SwapnikKatkoori/sleeper-api-wrapper.svg?color=blue)
 ![GitHub issues](https://img.shields.io/github/issues/SwapnikKatkoori/sleeper-api-wrapper.svg?color=orange)
