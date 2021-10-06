@@ -6,10 +6,8 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-requests = "*"
-sleeper-api-wrapper = "*"
+requests = ">=2.23.0"
 bs4 = "*"
-urllib3 = "*"
 halo = "*"
 black = "*"
 pipfile = "*"
