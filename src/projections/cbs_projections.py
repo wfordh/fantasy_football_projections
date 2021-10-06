@@ -57,7 +57,7 @@ class cbsProjections:
         converted_posns = None
         # no rb/wr group for CBS
         if sort_posns == ["RB", "TE", "WR"]:
-            converted_posn == "flex"
+            converted_posns = "flex"
         elif sort_posns == ["QB", "RB", "TE", "WR"]:
             converted_posns = "all"
         else:

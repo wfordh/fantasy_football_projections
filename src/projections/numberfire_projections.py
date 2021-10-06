@@ -63,9 +63,9 @@ class numberfireProjections:
         sort_posns = sorted(positions)
         converted_posns = None
         if sort_posns == ["RB", "WR"]:
-            converted_posn = "RB/WR"
+            converted_posns = "RB/WR"
         elif sort_posns == ["RB", "TE", "WR"]:
-            converted_posn == "flex"
+            converted_posns = "flex"
         elif sort_posns == ["QB", "RB", "TE", "WR"]:
             converted_posns = "all"
         else:
