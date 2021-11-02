@@ -125,3 +125,11 @@ def combine_projections(positions: Union[List, str], all_proj: bool = True):
 
 def sleeper_add_projections():
     pass
+
+
+def get_league_team_names(league, names_as_keys: bool = False):
+    users = league.get_users()
+    team_name_dict = league.map_users_to_team_names(users)
+    if names_as_keys:
+        return {name: team_id for team_id, name in team_name_dict.items()}
+    return team_name_dict
