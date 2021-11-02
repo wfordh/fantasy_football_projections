@@ -12,6 +12,7 @@ halo = "*"
 black = "*"
 pipfile = "*"
 tqdm = "*"
+chompjs = "*"
 
 [requires]
 python_version = "3.9"
