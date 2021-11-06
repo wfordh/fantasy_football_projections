@@ -21,7 +21,7 @@ parser.add_argument(
     required=True,
     type=str,
     default="half_ppr",
-    options=["standard", "half_ppr", "ppr"],
+    choices=["standard", "half_ppr", "ppr"],
 )
 
 
