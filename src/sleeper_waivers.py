@@ -15,9 +15,8 @@ from utils.utils import combine_projections
 # add help descriptions
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "-d",
     "--dry_run",
-    type=bool,
+    action=argparse.BooleanOptionalAction,
     required=True,
     help="True if you want to re-pull players from Sleeper",
 )
