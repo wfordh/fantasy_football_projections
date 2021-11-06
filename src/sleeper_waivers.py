@@ -15,7 +15,7 @@ from utils.utils import combine_projections
 # add help descriptions
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--dry_run",
+    "--pull_players",
     action=argparse.BooleanOptionalAction,
     required=True,
     help="True if you want to re-pull players from Sleeper",
@@ -36,7 +36,7 @@ def main():
 
         args = parser.parse_args()
         command_args = dict(vars(args))
-        is_dry_run = command_args.pop("dry_run", None)
+        pull_players = command_args.pop("pull_players", None)
         keep_positions = tuple(command_args.pop("positions", None).pop().split(","))
         if keep_positions == ("all",):
             keep_positions = ["QB", "RB", "WR", "TE"]
@@ -52,7 +52,7 @@ def main():
 
     league_rosters = league.get_rosters()
     # shouldn't this be if not is_dry_run?
-    if is_dry_run:
+    if pull_players:
         all_players = players.get_all_players()
         with open("./data/sleeper_players_current.json", "w") as outfile:
             json.dump(all_players, outfile)
