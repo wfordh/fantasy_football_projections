@@ -16,6 +16,7 @@ This repository is all in Python 3.9.1. It is formatted using [black](https://gi
 	- [fantasydata](https://fantasydata.com/nfl/fantasy-football-weekly-projections): can do RoS with some work - check that, only shows top 10 over selected area and need premium to get more. Probably skip for now
 	- [fantasysharks](https://www.fantasysharks.com/apps/Projections/SeasonProjections.php?pos=RB)
 	- [fantasysp](https://www.fantasysp.com/projections/football/weekly/RB): only weekly and requires headers
+	- [optimal DFS](https://optimaldfs.app/nfl/weekly-projections/flex): only weekly
 - Re-factor code in `sleeper_waivers.py` so the business logic is more separate from the UI
 - Add wins over expectation and season to date strength of schedule to `sleeper_expected_records.py`
 - Lineup optimization and predicted matchup points with the projections
