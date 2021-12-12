@@ -34,6 +34,7 @@ class fantasyprosProjections:
                 "position": player["player_position_id"],
                 "team": player["player_team_id"],
                 "proj_pts": player["r2p_pts"],
+                "cbs_id": player["cbs_player_id"],
             }
 
     def compile_data(self, positions):

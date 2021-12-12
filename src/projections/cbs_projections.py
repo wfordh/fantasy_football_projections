@@ -163,11 +163,15 @@ class cbsProjections:
                         .get_text()
                         .strip()
                     )
+                    player_cbs_id = (
+                        elem.find("a")["href"].rsplit("/", maxsplit=3)[1]
+                    )
                 else:
                     player_data.append(elem.get_text().strip())
             player_dict = dict(zip(cbs_headers, player_data))
             player_dict["Position"] = player_pos
             player_dict["team"] = player_team
+            player_dict["cbs_id"] = player_cbs_id
             projection_list.append(player_dict)
 
         return projection_list
@@ -218,6 +222,7 @@ class cbsProjections:
                 "team": row["team"],
                 "position": row["Position"],
                 "proj_pts": round(proj_points, 2),
+                "cbs_id": row["cbs_id"],
             }
 
     def save_projections(self, file_path):
