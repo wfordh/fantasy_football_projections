@@ -163,9 +163,7 @@ class cbsProjections:
                         .get_text()
                         .strip()
                     )
-                    player_cbs_id = (
-                        elem.find("a")["href"].rsplit("/", maxsplit=3)[1]
-                    )
+                    player_cbs_id = elem.find("a")["href"].rsplit("/", maxsplit=3)[1]
                 else:
                     player_data.append(elem.get_text().strip())
             player_dict = dict(zip(cbs_headers, player_data))

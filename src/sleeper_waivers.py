@@ -41,7 +41,7 @@ def main():
         if keep_positions == ("all",):
             keep_positions = ["QB", "RB", "WR", "TE"]
         elif keep_positions == ("flex",):
-            keep_positions = [ "RB", "WR", "TE"]
+            keep_positions = ["RB", "WR", "TE"]
         spinner.succeed()
 
     Halo(

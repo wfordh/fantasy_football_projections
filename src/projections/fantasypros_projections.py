@@ -33,12 +33,12 @@ class fantasyprosProjections:
             self.projections[player["player_name"]] = {
                 "position": player["player_position_id"],
                 "team": player["player_team_id"],
-                "proj_pts": player["r2p_pts"],
+                "proj_pts": float(player["r2p_pts"]),
                 "cbs_id": player["cbs_player_id"],
             }
 
     def compile_data(self, positions):
-        print(positions)
+        # print(positions)
         if type(positions) == str:
             if positions == "flex":
                 positions = ["RB", "WR", "TE"]
@@ -49,11 +49,10 @@ class fantasyprosProjections:
         else:
             pass
 
-        print(positions)
+        # print(positions)
 
         for position in positions:
             resp = requests.get(self.construct_url(position))
-            print(self.construct_url(position))
             soup = BeautifulSoup(resp.content, "html.parser")
             self.get_projections(soup)
 
