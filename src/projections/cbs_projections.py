@@ -4,6 +4,7 @@ from pathlib import Path
 import csv
 from time import sleep
 import random
+from typing import Dict, List
 
 
 class cbsProjections:
@@ -37,7 +38,7 @@ class cbsProjections:
     position_types = ["QB", "RB", "WR", "TE", "flex", "all"]
     stat_types = ["ytd", "restofseason", "projections", "ros"]
 
-    def __init__(self, scoring_system, season=2021):
+    def __init__(self, scoring_system: str, season: int =2021) -> None:
         self.scoring_system = self._get_scoring_map(scoring_system)
         # self._position = position
         self.data = list()
@@ -46,13 +47,13 @@ class cbsProjections:
         self.season = season if type(season) == str else str(season)
         self.base_url = "https://www.cbssports.com/fantasy/football/stats/"
 
-    def _check_position(self, position):
+    def _check_position(self, position: str) -> None:
         if position not in self.position_types:
             raise ValueError(
                 f"Invalid position type ({position}). Must be in: {', '.join(self.position_types)}"
             )
 
-    def _convert_position_list(self, positions):
+    def _convert_position_list(self, positions: List[str]) -> List[str]:
         sort_posns = sorted(positions)
         converted_posns = None
         # no rb/wr group for CBS
@@ -64,7 +65,7 @@ class cbsProjections:
             converted_posns = positions
         return converted_posns
 
-    def get_data(self, position, stat_type):
+    def get_data(self, position: str, stat_type: str) -> None:
         # combo of construct_url and scrape_data
         # needs to handle "all" position type calls
         if len(self.data) > 0:
@@ -118,14 +119,14 @@ class cbsProjections:
             )
             self.data = self.scrape_data(position_url)
 
-    def construct_url(self, season, stat_type, position, score_type):
+    def construct_url(self, season: int, stat_type: str, position: str, score_type: str) -> str:
         # make this the default?
         # https://www.cbssports.com/fantasy/football/stats/RB-WR-TE/2019/restofseason/projections/nonppr/
         # allow QB, RB, WR, TE, and flex (=RB/WR/TE)
         return self.base_url + position + f"/{season}/" + stat_type + score_type
 
     @staticmethod
-    def scrape_data(url):
+    def scrape_data(url: str) -> List[Dict]:
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
 
@@ -174,7 +175,7 @@ class cbsProjections:
 
         return projection_list
 
-    def convert_projections(self):
+    def convert_projections(self) -> None:
 
         for row in self.data:
             player = row["Player"]
@@ -223,7 +224,7 @@ class cbsProjections:
                 "cbs_id": row["cbs_id"],
             }
 
-    def save_projections(self, file_path):
+    def save_projections(self, file_path: str) -> None:
         # will need to update now that data structure of projections has changed
         data_folder = Path.cwd() / "data"
         full_path = data_folder / file_path
@@ -233,7 +234,7 @@ class cbsProjections:
             dict_writer.writeheader()
             dict_writer.writerows(self.data)
 
-    def load_projections(self, file_path):
+    def load_projections(self, file_path: str) -> None:
         data_folder = Path.cwd() / "data"
         full_path = data_folder / file_path
         with open(full_path, "r") as infile:
@@ -241,7 +242,7 @@ class cbsProjections:
             for row in reader:
                 self.data.append(row)
 
-    def _get_scoring_map(self, scoring_system):
+    def _get_scoring_map(self, scoring_system: str) -> Dict:
         if scoring_system not in self.scoring_map:
             raise Exception("System not in scoring map")
         return self.scoring_map[scoring_system]
