@@ -23,3 +23,10 @@ This repository is all in Python 3.9.1. It is formatted using [black](https://gi
 - Pull projections independently of waivers?
 	- Save missing players so it's easier to know if there's a blind spot
 - [Google search](https://www.google.com/search?q=fantasy+football+python&rlz=1C5CHFA_enUS873&oq=fantasy+football+python&aqs=chrome..69i57.3426j0j1&sourceid=chrome&ie=UTF-8) for python fantasy football tools
+
+## Roadmap
+1. typing for projection functions
+2. documentation for projection functions
+3. add isort and pre-commit hooks
+4. tests
+5. fancy code coverage stuff
