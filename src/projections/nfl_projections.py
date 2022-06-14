@@ -2,6 +2,7 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 from time import sleep
+from typing import Dict, List
 
 
 class nflProjections:
@@ -40,14 +41,14 @@ class nflProjections:
     position_map = {"QB": 1, "RB": 2, "WR": 3, "TE": 4}
     reverse_position_map = {1: "QB", 2: "RB", 3: "WR", 4: "TE"}
 
-    def __init__(self, scoring_system):
+    def __init__(self, scoring_system: str) -> None:
         self.scoring_system = self._get_scoring_map(scoring_system)
         self.data = list()
         self.projections = dict()
         self.base_url = "https://fantasy.nfl.com/research/projections"
         self.params = None  # for now
 
-    def construct_params(self, week, position, offset):
+    def construct_params(self, week: int, position: str, offset: int) -> None:
         self.params = {
             "statWeek": week,
             "position": position,
@@ -60,7 +61,7 @@ class nflProjections:
     # if scoring is full PPR, can just grab the projected points
     # otherwise must get individual stats and convert into projections
 
-    def get_player_projections(self, player, position):
+    def get_player_projections(self, player, position: str) -> Dict:
         stats = dict()
         stats["pass_yds"] = player.find("td", "stat_5").text
         stats["pass_td"] = player.find("td", "stat_6").text
@@ -76,7 +77,7 @@ class nflProjections:
         stats = {k: (float(v) if v != "-" else 0) for k, v in stats.items()}
         return stats
 
-    def get_data(self, soup, position):
+    def get_data(self, soup, position: str) -> List:
         player_results = list()
         player_rows = soup.find("tbody").find_all("tr")
         sleep(0.8)
@@ -108,7 +109,7 @@ class nflProjections:
 
     # run through players on first 2 pages for QB, 3 for RB / TE, 4 for WR
     # roll up players for all weeks
-    def compile_data(self, positions):
+    def compile_data(self, positions) -> None:
         if type(positions) in [tuple, list] and len(positions) == 1:
             positions = positions[0]
         if positions == "flex":
@@ -135,7 +136,7 @@ class nflProjections:
                     soup = BeautifulSoup(resp.content, "html.parser")
                     self.data.extend(self.get_data(soup, position))
 
-    def convert_projections(self):
+    def convert_projections(self) -> None:
         for row in self.data:
             player = row["player"]
             player_posn = row["position"]
@@ -154,7 +155,7 @@ class nflProjections:
         for player, data in self.projections.items():
             self.projections[player]["proj_pts"] = round(data["proj_pts"], 2)
 
-    def calc_qb_projections(self, player_data):
+    def calc_qb_projections(self, player_data) -> float:
         return (
             self.scoring_system["pass_yds"] * float(player_data["pass_yds"])
             + self.scoring_system["pass_td"] * float(player_data["pass_td"])
@@ -165,7 +166,7 @@ class nflProjections:
             + self.scoring_system["two_pt_conv"] * float(player_data["two_pt_conv"])
         )
 
-    def calc_skill_projections(self, player_data):
+    def calc_skill_projections(self, player_data) -> float:
         return (
             self.scoring_system["rush_yds"] * float(player_data["rush_yds"])
             + self.scoring_system["rec_yds"] * float(player_data["rec_yds"])
@@ -176,7 +177,7 @@ class nflProjections:
             + self.scoring_system["two_pt_conv"] * float(player_data["two_pt_conv"])
         )
 
-    def save_projections(self, file_path):
+    def save_projections(self, file_path: str) -> None:
         data_folder = Path.cwd() / "data"
         full_path = data_folder / file_path
         with open(full_path, "w") as outfile:
@@ -185,7 +186,7 @@ class nflProjections:
             dict_writer.writeheader()
             dict_writer.writerows(self.data)
 
-    def load_projections(self, file_path):
+    def load_projections(self, file_path: str) -> None:
         data_folder = Path.cwd() / "data"
         full_path = data_folder / file_path
         with open(full_path, "r") as infile:
@@ -193,7 +194,7 @@ class nflProjections:
             for row in reader:
                 self.data.append(row)
 
-    def _get_scoring_map(self, scoring_system):
+    def _get_scoring_map(self, scoring_system: str) -> Dict:
         if scoring_system not in self.scoring_map:
             raise Exception("System not in scoring map")
         return self.scoring_map[scoring_system]
