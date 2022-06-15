@@ -1,4 +1,5 @@
 # fantasy_football_projections
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ## Background
 This repository houses various tools I have created to aid me during the fantasy football season. I am currently in a [Sleeper league](https://www.sleeper.app), so development is focused there. Note that right now these are more tools built around decision making and using existing projections, not my own projections.
