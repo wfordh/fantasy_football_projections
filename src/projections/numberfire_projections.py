@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from bs4.element import Tag
 from pathlib import Path
 import csv
 from itertools import chain
@@ -60,7 +61,7 @@ class numberfireProjections:
                 f"Invalid position type ({position}). Must be in: {', '.join(self.position_types)}"
             )
 
-    def _convert_position_list(self, positions -> List) -> Union[str, List]:
+    def _convert_position_list(self, positions: List) -> Union[str, List]:
         sort_posns = sorted(positions)
         converted_posns = None
         if sort_posns == ["RB", "WR"]:
@@ -73,7 +74,7 @@ class numberfireProjections:
             converted_posns = positions
         return converted_posns
 
-    def get_data(self, position -> str) -> None:
+    def get_data(self, position: str) -> None:
         # get all positions in one grab
         if len(position) > 1:
             [self._check_position(posn) for posn in position]
@@ -131,7 +132,7 @@ class numberfireProjections:
         ]
 
     @staticmethod
-    def scrape_data(url: str):
+    def scrape_data(url: str) -> Tag:
         # need the return type...something soupy
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
@@ -146,18 +147,18 @@ class numberfireProjections:
         return raw_data
 
     @staticmethod
-    def get_player_header(data):
+    def get_player_header(data) -> str:
         return data.find("table").find("thead").find_all("tr")[1].get_text().strip()
 
     @staticmethod
-    def get_player_names(data):
+    def get_player_names(data) -> List:
         return [
             td.find("span", {"class": "full"}).get_text()
             for td in data.find("table").find("tbody").find_all("td")
         ]
 
     @staticmethod
-    def get_player_teams(data):
+    def get_player_teams(data) -> List:
         raw_teams = [
             re.findall(r"[A-Z]+", td.a.next_sibling.strip())[1]
             for td in data.find("table").find("tbody").find_all("td")
@@ -174,14 +175,14 @@ class numberfireProjections:
         return player_teams
 
     @staticmethod
-    def get_player_projections(data):
+    def get_player_projections(data) -> List:
         return [
             [td.get_text().strip() for td in tr.find_all("td")]
             for tr in data.find_all("table")[1].find("tbody").find_all("tr")
         ]
 
     @staticmethod
-    def get_projection_headers(data):
+    def get_projection_headers(data) -> List:
         return [
             th["title"]
             for th in data.find_all("table")[1]
