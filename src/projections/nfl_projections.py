@@ -1,8 +1,10 @@
 from pathlib import Path
+from time import sleep
+from typing import Dict, List, Tuple, Union
+
 import requests
 from bs4 import BeautifulSoup
-from time import sleep
-from typing import Dict, List
+from bs4.element import Tag
 
 
 class nflProjections:
@@ -61,7 +63,7 @@ class nflProjections:
     # if scoring is full PPR, can just grab the projected points
     # otherwise must get individual stats and convert into projections
 
-    def get_player_projections(self, player, position: str) -> Dict:
+    def get_player_projections(self, player: Tag, position: str) -> Dict:
         stats = dict()
         stats["pass_yds"] = player.find("td", "stat_5").text
         stats["pass_td"] = player.find("td", "stat_6").text
@@ -77,7 +79,7 @@ class nflProjections:
         stats = {k: (float(v) if v != "-" else 0) for k, v in stats.items()}
         return stats
 
-    def get_data(self, soup, position: str) -> List:
+    def get_data(self, soup: BeautifulSoup, position: str) -> List:
         player_results = list()
         player_rows = soup.find("tbody").find_all("tr")
         sleep(0.8)
@@ -109,7 +111,7 @@ class nflProjections:
 
     # run through players on first 2 pages for QB, 3 for RB / TE, 4 for WR
     # roll up players for all weeks
-    def compile_data(self, positions) -> None:
+    def compile_data(self, positions: Union[str, List, Tuple]) -> None:
         if type(positions) in [tuple, list] and len(positions) == 1:
             positions = positions[0]
         if positions == "flex":
@@ -155,7 +157,7 @@ class nflProjections:
         for player, data in self.projections.items():
             self.projections[player]["proj_pts"] = round(data["proj_pts"], 2)
 
-    def calc_qb_projections(self, player_data) -> float:
+    def calc_qb_projections(self, player_data: Dict) -> float:
         return (
             self.scoring_system["pass_yds"] * float(player_data["pass_yds"])
             + self.scoring_system["pass_td"] * float(player_data["pass_td"])
@@ -166,7 +168,7 @@ class nflProjections:
             + self.scoring_system["two_pt_conv"] * float(player_data["two_pt_conv"])
         )
 
-    def calc_skill_projections(self, player_data) -> float:
+    def calc_skill_projections(self, player_data: Dict) -> float:
         return (
             self.scoring_system["rush_yds"] * float(player_data["rush_yds"])
             + self.scoring_system["rec_yds"] * float(player_data["rec_yds"])

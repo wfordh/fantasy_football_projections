@@ -1,5 +1,7 @@
-import requests
+from typing import List, Tuple, Union
+
 import chompjs
+import requests
 from bs4 import BeautifulSoup
 
 
@@ -19,7 +21,7 @@ class fantasyprosProjections:
     def construct_url(self, position: str) -> str:
         return f"{self.base_url}/ros-{self.scoring_system}-{position.lower()}.php"
 
-    def get_projections(self, soup) -> None:
+    def get_projections(self, soup: BeautifulSoup) -> None:
         scripts = soup.find_all("script")
         ecrData = None
         for script in scripts:
@@ -37,7 +39,7 @@ class fantasyprosProjections:
                 "cbs_id": player["cbs_player_id"],
             }
 
-    def compile_data(self, positions) -> None:
+    def compile_data(self, positions: Union[List, str]) -> None:
         # print(positions)
         if type(positions) == str:
             if positions == "flex":
@@ -79,7 +81,7 @@ class fantasyprosProjections:
             raise Exception("System not in scoring map")
         return self.scoring_map[scoring_system]
 
-    def _wrangle_positions(self, positions) -> None:
+    def _wrangle_positions(self, positions: Union[List, Tuple, str]) -> None:
         # not sure this is necessary. or pull the code above down into here
         if type(positions) in [tuple, list] and len(positions) == 1:
             positions = positions[0]

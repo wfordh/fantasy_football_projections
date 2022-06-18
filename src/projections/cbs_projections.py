@@ -1,10 +1,11 @@
+import csv
+import random
+from pathlib import Path
+from time import sleep
+from typing import Dict, List
+
 import requests
 from bs4 import BeautifulSoup
-from pathlib import Path
-import csv
-from time import sleep
-import random
-from typing import Dict, List
 
 
 class cbsProjections:
@@ -38,7 +39,7 @@ class cbsProjections:
     position_types = ["QB", "RB", "WR", "TE", "flex", "all"]
     stat_types = ["ytd", "restofseason", "projections", "ros"]
 
-    def __init__(self, scoring_system: str, season: int =2021) -> None:
+    def __init__(self, scoring_system: str, season: int = 2021) -> None:
         self.scoring_system = self._get_scoring_map(scoring_system)
         # self._position = position
         self.data = list()
@@ -119,7 +120,9 @@ class cbsProjections:
             )
             self.data = self.scrape_data(position_url)
 
-    def construct_url(self, season: int, stat_type: str, position: str, score_type: str) -> str:
+    def construct_url(
+        self, season: int, stat_type: str, position: str, score_type: str
+    ) -> str:
         # make this the default?
         # https://www.cbssports.com/fantasy/football/stats/RB-WR-TE/2019/restofseason/projections/nonppr/
         # allow QB, RB, WR, TE, and flex (=RB/WR/TE)

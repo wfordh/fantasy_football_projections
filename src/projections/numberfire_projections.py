@@ -1,13 +1,14 @@
+import csv
+import random
+import re
+from itertools import chain
+from pathlib import Path
+from time import sleep
+from typing import Dict, List, Union
+
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-from pathlib import Path
-import csv
-from itertools import chain
-from time import sleep
-import random
-import re
-from typing import Dict, List, Union
 
 
 class numberfireProjections:
