@@ -148,18 +148,18 @@ class numberfireProjections:
         return raw_data
 
     @staticmethod
-    def get_player_header(data) -> str:
+    def get_player_header(data: BeautifulSoup) -> str:
         return data.find("table").find("thead").find_all("tr")[1].get_text().strip()
 
     @staticmethod
-    def get_player_names(data) -> List:
+    def get_player_names(data: BeautifulSoup) -> List:
         return [
             td.find("span", {"class": "full"}).get_text()
             for td in data.find("table").find("tbody").find_all("td")
         ]
 
     @staticmethod
-    def get_player_teams(data) -> List:
+    def get_player_teams(data: BeautifulSoup) -> List:
         raw_teams = [
             re.findall(r"[A-Z]+", td.a.next_sibling.strip())[1]
             for td in data.find("table").find("tbody").find_all("td")
@@ -176,14 +176,14 @@ class numberfireProjections:
         return player_teams
 
     @staticmethod
-    def get_player_projections(data) -> List:
+    def get_player_projections(data: BeautifulSoup) -> List:
         return [
             [td.get_text().strip() for td in tr.find_all("td")]
             for tr in data.find_all("table")[1].find("tbody").find_all("tr")
         ]
 
     @staticmethod
-    def get_projection_headers(data) -> List:
+    def get_projection_headers(data: BeautifulSoup) -> List:
         return [
             th["title"]
             for th in data.find_all("table")[1]
@@ -207,7 +207,7 @@ class numberfireProjections:
                 "proj_pts": round(proj_points, 2),
             }
 
-    def calc_qb_projections(self, player_data) -> float:
+    def calc_qb_projections(self, player_data: Dict) -> float:
         return (
             self.scoring_system["pass_yds"] * float(player_data["Passing Yards"])
             + self.scoring_system["pass_td"] * float(player_data["Passing Touchdowns"])
@@ -216,7 +216,7 @@ class numberfireProjections:
             + self.scoring_system["rush_td"] * float(player_data["Rushing Touchdowns"])
         )
 
-    def calc_skill_projections(self, player_data) -> float:
+    def calc_skill_projections(self, player_data: Dict) -> float:
         return (
             self.scoring_system["rush_yds"] * float(player_data["Rushing Yards"])
             + self.scoring_system["rec_yds"] * float(player_data["Receiving Yards"])
