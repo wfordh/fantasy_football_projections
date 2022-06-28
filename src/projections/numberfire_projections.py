@@ -1,11 +1,14 @@
-import requests
-from bs4 import BeautifulSoup
-from pathlib import Path
 import csv
-from itertools import chain
-from time import sleep
 import random
 import re
+from itertools import chain
+from pathlib import Path
+from time import sleep
+from typing import Dict, List, Union
+
+import requests
+from bs4 import BeautifulSoup
+from bs4.element import Tag
 
 
 class numberfireProjections:
@@ -41,25 +44,25 @@ class numberfireProjections:
     pure_positions = ["QB", "RB", "WR", "TE"]
     position_types = ["QB", "RB", "WR", "TE", "RB/WR", "flex", "all"]
 
-    def __init__(self, scoring_system):
+    def __init__(self, scoring_system: str) -> None:
         self.scoring_system = self._get_scoring_map(scoring_system)
         # self.position = position #make these property functions?
         self.data = list()
         self.projections = dict()
         self.base_url = "https://www.numberfire.com/nfl/fantasy/remaining-projections/"
 
-    def construct_url(self, position):
+    def construct_url(self, position: str) -> str:
         if position == "RB/WR":
             return self.base_url + "rbwr"
         return self.base_url + position.lower()
 
-    def _check_position(self, position):
+    def _check_position(self, position: str) -> None:
         if position not in self.position_types:
             raise ValueError(
                 f"Invalid position type ({position}). Must be in: {', '.join(self.position_types)}"
             )
 
-    def _convert_position_list(self, positions):
+    def _convert_position_list(self, positions: List) -> Union[str, List]:
         sort_posns = sorted(positions)
         converted_posns = None
         if sort_posns == ["RB", "WR"]:
@@ -72,7 +75,7 @@ class numberfireProjections:
             converted_posns = positions
         return converted_posns
 
-    def get_data(self, position):
+    def get_data(self, position: str) -> None:
         # get all positions in one grab
         if len(position) > 1:
             [self._check_position(posn) for posn in position]
@@ -107,7 +110,7 @@ class numberfireProjections:
         else:
             self.data = self.compile_data(position)
 
-    def compile_data(self, position):
+    def compile_data(self, position: str) -> List[Dict]:
         sleep(random.uniform(1, 2))
         url = self.construct_url(position)
         raw_data = self.scrape_data(url)
@@ -130,7 +133,8 @@ class numberfireProjections:
         ]
 
     @staticmethod
-    def scrape_data(url):
+    def scrape_data(url: str) -> Tag:
+        # need the return type...something soupy
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
         raw_data = (
@@ -144,18 +148,18 @@ class numberfireProjections:
         return raw_data
 
     @staticmethod
-    def get_player_header(data):
+    def get_player_header(data: BeautifulSoup) -> str:
         return data.find("table").find("thead").find_all("tr")[1].get_text().strip()
 
     @staticmethod
-    def get_player_names(data):
+    def get_player_names(data: BeautifulSoup) -> List:
         return [
             td.find("span", {"class": "full"}).get_text()
             for td in data.find("table").find("tbody").find_all("td")
         ]
 
     @staticmethod
-    def get_player_teams(data):
+    def get_player_teams(data: BeautifulSoup) -> List:
         raw_teams = [
             re.findall(r"[A-Z]+", td.a.next_sibling.strip())[1]
             for td in data.find("table").find("tbody").find_all("td")
@@ -172,14 +176,14 @@ class numberfireProjections:
         return player_teams
 
     @staticmethod
-    def get_player_projections(data):
+    def get_player_projections(data: BeautifulSoup) -> List:
         return [
             [td.get_text().strip() for td in tr.find_all("td")]
             for tr in data.find_all("table")[1].find("tbody").find_all("tr")
         ]
 
     @staticmethod
-    def get_projection_headers(data):
+    def get_projection_headers(data: BeautifulSoup) -> List:
         return [
             th["title"]
             for th in data.find_all("table")[1]
@@ -188,7 +192,7 @@ class numberfireProjections:
             .find_all("th")
         ]
 
-    def convert_projections(self):
+    def convert_projections(self) -> None:
         ## modularize the scoring calculations and turn this into a dict comp?
         for row in self.data:
             player = row["Player"]
@@ -203,7 +207,7 @@ class numberfireProjections:
                 "proj_pts": round(proj_points, 2),
             }
 
-    def calc_qb_projections(self, player_data):
+    def calc_qb_projections(self, player_data: Dict) -> float:
         return (
             self.scoring_system["pass_yds"] * float(player_data["Passing Yards"])
             + self.scoring_system["pass_td"] * float(player_data["Passing Touchdowns"])
@@ -212,7 +216,7 @@ class numberfireProjections:
             + self.scoring_system["rush_td"] * float(player_data["Rushing Touchdowns"])
         )
 
-    def calc_skill_projections(self, player_data):
+    def calc_skill_projections(self, player_data: Dict) -> float:
         return (
             self.scoring_system["rush_yds"] * float(player_data["Rushing Yards"])
             + self.scoring_system["rec_yds"] * float(player_data["Receiving Yards"])
@@ -221,7 +225,7 @@ class numberfireProjections:
             + self.scoring_system["rec_td"] * float(player_data["Receiving Touchdowns"])
         )
 
-    def save_projections(self, file_path):
+    def save_projections(self, file_path: str) -> float:
         data_folder = Path.cwd() / "data"
         full_path = data_folder / file_path
         with open(full_path, "w") as outfile:
@@ -230,7 +234,7 @@ class numberfireProjections:
             dict_writer.writeheader()
             dict_writer.writerows(self.data)
 
-    def load_projections(self, file_path):
+    def load_projections(self, file_path: str) -> float:
         data_folder = Path.cwd() / "data"
         full_path = data_folder / file_path
         with open(full_path, "r") as infile:
@@ -238,7 +242,7 @@ class numberfireProjections:
             for row in reader:
                 self.data.append(row)
 
-    def _get_scoring_map(self, scoring_system):
+    def _get_scoring_map(self, scoring_system: str) -> Dict:
         if scoring_system not in self.scoring_map:
             raise Exception("System not in scoring map")
         return self.scoring_map[scoring_system]

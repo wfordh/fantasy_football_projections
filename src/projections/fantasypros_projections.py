@@ -1,5 +1,7 @@
-import requests
+from typing import List, Tuple, Union
+
 import chompjs
+import requests
 from bs4 import BeautifulSoup
 
 
@@ -11,15 +13,15 @@ class fantasyprosProjections:
         "half_ppr": "half-point-ppr",
     }
 
-    def __init__(self, scoring_system):
+    def __init__(self, scoring_system: str) -> None:
         self.scoring_system = self._get_scoring_map(scoring_system)
         self.projections = dict()
         self.base_url = "https://fantasypros.com/nfl/rankings"
 
-    def construct_url(self, position):
+    def construct_url(self, position: str) -> str:
         return f"{self.base_url}/ros-{self.scoring_system}-{position.lower()}.php"
 
-    def get_projections(self, soup):
+    def get_projections(self, soup: BeautifulSoup) -> None:
         scripts = soup.find_all("script")
         ecrData = None
         for script in scripts:
@@ -37,7 +39,7 @@ class fantasyprosProjections:
                 "cbs_id": player["cbs_player_id"],
             }
 
-    def compile_data(self, positions):
+    def compile_data(self, positions: Union[List, str]) -> None:
         # print(positions)
         if type(positions) == str:
             if positions == "flex":
@@ -56,7 +58,7 @@ class fantasyprosProjections:
             soup = BeautifulSoup(resp.content, "html.parser")
             self.get_projections(soup)
 
-    def save_projections(self, file_path):
+    def save_projections(self, file_path: str) -> None:
         data_folder = Path.cwd() / "data"
         full_path = data_folder / file_path
         with open(full_path, "w") as outfile:
@@ -65,7 +67,7 @@ class fantasyprosProjections:
             dict_writer.writeheader()
             dict_writer.writerows(self.data)
 
-    def load_projections(self, file_path):
+    def load_projections(self, file_path: str) -> None:
         data_folder = Path.cwd() / "data"
         full_path = data_folder / file_path
         with open(full_path, "r") as infile:
@@ -73,12 +75,13 @@ class fantasyprosProjections:
             for row in reader:
                 self.data.append(row)
 
-    def _get_scoring_map(self, scoring_system):
+    def _get_scoring_map(self, scoring_system: str) -> str:
+        # should probably change this name so it doesn't match the other projections since it works slighty different
         if scoring_system not in self.scoring_map:
             raise Exception("System not in scoring map")
         return self.scoring_map[scoring_system]
 
-    def _wrangle_positions(self, positions):
+    def _wrangle_positions(self, positions: Union[List, Tuple, str]) -> None:
         # not sure this is necessary. or pull the code above down into here
         if type(positions) in [tuple, list] and len(positions) == 1:
             positions = positions[0]

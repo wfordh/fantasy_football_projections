@@ -13,6 +13,7 @@ black = "*"
 pipfile = "*"
 tqdm = "*"
 chompjs = "*"
+isort = "*"
 
 [requires]
 python_version = "3.9"
