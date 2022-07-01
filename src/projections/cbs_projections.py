@@ -49,6 +49,14 @@ class cbsProjections:
         self.base_url = "https://www.cbssports.com/fantasy/football/stats/"
 
     def _check_position(self, position: str) -> None:
+        """Private method to check if the provided position is allowed.
+        
+        Args:
+            position: A string representing the position to check.
+        
+        Raises:
+            ValueError: An invalid position was provided.
+        """
         if position not in self.position_types:
             raise ValueError(
                 f"Invalid position type ({position}). Must be in: {', '.join(self.position_types)}"
