@@ -63,6 +63,8 @@ class cbsProjections:
             )
 
     def _convert_position_list(self, positions: List[str]) -> List[str]:
+        """Private method for converting list of input positions into a usable input.
+        """
         sort_posns = sorted(positions)
         converted_posns = None
         # no rb/wr group for CBS
@@ -75,6 +77,15 @@ class cbsProjections:
         return converted_posns
 
     def get_data(self, position: str, stat_type: str) -> None:
+        """Gets the data for the requested position and stat type.
+        
+        The code checks the stat_type and position before constructing the URL and pulling the data
+        for the requested position(s) before adding it to the cbsProjections object's `data` attribute.
+        
+        Args:
+            position: A string specifying which position(s) to pull data for.
+            stat_type: A string specifying if year to date or rest of season are desired.
+        """
         # combo of construct_url and scrape_data
         # needs to handle "all" position type calls
         if len(self.data) > 0:
@@ -131,6 +142,17 @@ class cbsProjections:
     def construct_url(
         self, season: int, stat_type: str, position: str, score_type: str
     ) -> str:
+        """Constructs the URL to scrape data from for the requested parameters.
+        
+        Args:
+            season: The year the season starts in, ie 2019-20 season is 2019.
+            stat_type: A string for either rest of season or year to date stats.
+            position: A string representing the position(s) to scrape.
+            score_type: The type of scoring, either nonppr or ppr.
+            
+        Returns:
+            URL in string form for scraping and parsing.
+        """
         # make this the default?
         # https://www.cbssports.com/fantasy/football/stats/RB-WR-TE/2019/restofseason/projections/nonppr/
         # allow QB, RB, WR, TE, and flex (=RB/WR/TE)
@@ -138,6 +160,8 @@ class cbsProjections:
 
     @staticmethod
     def scrape_data(url: str) -> List[Dict]:
+        """
+        """
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
 
@@ -187,7 +211,8 @@ class cbsProjections:
         return projection_list
 
     def convert_projections(self) -> None:
-
+        """
+        """
         for row in self.data:
             player = row["Player"]
             if row["Position"] == "QB":
