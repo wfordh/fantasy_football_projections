@@ -28,6 +28,7 @@ This repository is all in Python 3.9.1. It is formatted using [black](https://gi
 ## Roadmap
 1. typing for projection functions
 2. documentation for projection functions
-3. add isort and pre-commit hooks
+3. add isort and [pre-commit hooks](https://pre-commit.com/)
 4. tests
 5. fancy code coverage stuff
+6. CBS projections need some private helper methods for checking inputs such as ytd/restofseason and constructing the URL
