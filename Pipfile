@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-requests = ">=2.23.0"
+requests = "*"
 bs4 = "*"
 halo = "*"
 black = "*"
@@ -14,6 +14,8 @@ pipfile = "*"
 tqdm = "*"
 chompjs = "*"
 isort = "*"
+pandas = "*"
+sleeper-api-wrapper = "*"
 
 [requires]
 python_version = "3.9"
