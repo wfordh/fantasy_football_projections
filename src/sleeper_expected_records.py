@@ -136,35 +136,30 @@ def main():
 
     all_leagues = True if command_args.pop("all_user_leagues") == "yes" else False
     nfl_state = get_nfl_state()
-    print(nfl_state)
+    # not sure how ironclad this logic is
     if nfl_state["season_type"] != "post":
         current_week = nfl_state.pop("week", None)
     else:
         current_week = 18
 
-    # league_id = os.environ.get("SLEEPER_LEAGUE_ID", "")
-    # league = League(league_id)
     leagues = get_user_leagues(all_leagues, nfl_state)
     for league in leagues:
-        print(league.get_league()["status"])
         print(f"Getting info for {league.get_league()['name']}")
 
         roster_id_map = get_roster_id_map(league)
-        # can pull out roster_ids from here to use later instead of iterating through rosters each time
 
         score_type = command_args.pop("score_type", None)
 
         teams_faced = dict.fromkeys(list(roster_id_map))
-        # need to track teams faced - why? see oppo win% to date, both real and expected?
+        # need to track teams faced to see oppo win% to date, real and expected?
+        # not currently using it though
 
-        # only need expected_wins here --> FUNCTION
         expected_wins = calc_expected_wins(league, current_week, roster_id_map)
 
         # num_teams - 1 because you don't play yourself
         num_teams = league.get_league()["total_rosters"]
         # hav ethis and some other things in a dataclass to track "state"?
         num_matchups = (current_week - 1) * (num_teams - 1)
-        # team_exp_records only thing to come out of this --> FUNCTION
         team_exp_records = calc_team_expected_record(
             league, expected_wins, roster_id_map, num_matchups
         )
@@ -183,13 +178,10 @@ def main():
             )
         )
 
-        # need remaining_opponents, current_week
         if current_week < WEEKS_IN_SEASON:
             remaining_opponents = get_remaining_opponents(
                 league, roster_id_map, current_week
             )
-            print(team_exp_records)
-            print(remaining_opponents)
             remaining_sos = calc_remaining_sos(remaining_opponents, team_exp_records)
 
             # sort?
