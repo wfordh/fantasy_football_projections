@@ -6,16 +6,16 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-requests = "*"
-bs4 = "*"
+requests = "2.27.0"
+beautifulsoup4 = "4.11.1"
 halo = "*"
 black = "*"
-pipfile = "*"
+# pipfile = "*"
 tqdm = "*"
-chompjs = "*"
+chompjs = "1.1.9"
 isort = "*"
-pandas = "*"
-sleeper-api-wrapper = "*"
+sleeper-api-wrapper = {git = "https://github.com/dtsong/sleeper-api-wrapper.git"}
+urllib3 = "1.26.5"
 
 [requires]
 python_version = "3.9"
