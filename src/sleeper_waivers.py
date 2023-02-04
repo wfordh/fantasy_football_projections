@@ -83,7 +83,7 @@ def get_own_players(league_rosters: list[dict]) -> dict:
     return own_team["players"]
 
 
-def add_projections_to_keep_players(keep_players: dict, combined_proj) -> dict:
+def add_projections_to_keep_players(keep_players: dict, combined_proj: dict) -> dict:
     for p_id, p_data in keep_players.items():
         try:
             p_data["projections"] = combined_proj[p_data["search_full_name"]][
