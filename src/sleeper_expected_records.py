@@ -4,17 +4,16 @@ more to come
 """
 
 import argparse
+import logging
 import os
-import pprint
 from operator import add
+from pprint import pformat
 
 import requests
 from sleeper_wrapper import League, User
 from tqdm import tqdm, trange
 
-# may try to make this automatic somehow
 parser = argparse.ArgumentParser()
-# can get score type and current week (old CLI args) from sleeper API
 parser.add_argument(
     "-a",
     "--all_user_leagues",
@@ -28,10 +27,29 @@ parser.add_argument(
 # a subclass of the wrapper's "League" class??
 # a dataclass?
 
+# can get weeks in season dynamically from the league object
+# league["settings"]["playoff_week_start"]
 WEEKS_IN_SEASON = 15
 
+logging.basicConfig(level=logging.INFO)
 
-def get_user_leagues(all_leagues, nfl_state):
+
+class LeagueV2(League):
+    """docstring for LeagueV2"""
+
+    def __init__(self, league_id):
+        super().__init__(self)
+        self.roster_id_map = self._get_roster_id_map()
+
+    def _get_roster_id_map(self) -> dict:
+        """ """
+        rosters = self.get_rosters()
+        roster_id_map = self.map_rosterid_to_ownerid(rosters)
+        return roster_id_map
+
+
+def get_user_leagues(all_leagues: list[League], nfl_state: dict) -> list[League]:
+    """"""
     if all_leagues:
         user_id = os.environ.get("SLEEPER_USER_ID", "")
         season = nfl_state.pop("season", None)
@@ -43,18 +61,20 @@ def get_user_leagues(all_leagues, nfl_state):
     return [League(league_id)]
 
 
-def get_nfl_state():
+def get_nfl_state() -> dict:
+    """"""
     return requests.get("https://api.sleeper.app/v1/state/nfl").json()
 
 
-def get_roster_id_map(league):
-    # league = League(league.pop("league_id", None))
+def get_roster_id_map(league: League) -> dict:
+    """ """
     rosters = league.get_rosters()
     roster_id_map = league.map_rosterid_to_ownerid(rosters)
     return roster_id_map
 
 
-def calc_expected_wins(league, current_week, roster_id_map):
+def calc_expected_wins(league: League, current_week: int, roster_id_map: dict) -> dict:
+    """ """
     # need some docs here, especially for how expected_wins happens
     # and why it's structured that way
     expected_wins = dict.fromkeys(list(roster_id_map), 0)
@@ -71,7 +91,10 @@ def calc_expected_wins(league, current_week, roster_id_map):
     return expected_wins
 
 
-def calc_team_expected_record(league, expected_wins, roster_id_map, num_matchups):
+def calc_team_expected_record(
+    league: League, expected_wins: dict, roster_id_map: dict, num_matchups: int
+) -> dict:
+    """ """
     # hmm need the num_matchups too, so would need current week / nfl state too
     users = league.get_users()
     users_dict = league.map_users_to_team_name(users)
@@ -90,7 +113,10 @@ def calc_team_expected_record(league, expected_wins, roster_id_map, num_matchups
     return team_exp_records
 
 
-def get_remaining_opponents(league, roster_id_map, current_week):
+def get_remaining_opponents(
+    league: League, roster_id_map: dict, current_week: int
+) -> dict:
+    """ """
     remaining_opponents = dict.fromkeys(list(roster_id_map))
     for week in trange(current_week, WEEKS_IN_SEASON, desc="Getting future weeks"):
         weekly_matchups = league.get_matchups(week)
@@ -119,7 +145,8 @@ def get_remaining_opponents(league, roster_id_map, current_week):
     return remaining_opponents
 
 
-def calc_remaining_sos(remaining_opponents, team_exp_records):
+def calc_remaining_sos(remaining_opponents: dict, team_exp_records: dict) -> dict:
+    """ """
     remaining_sos = dict()
     for team, opponents in remaining_opponents.items():
         sos = sum([team_exp_records[oppo]["win_pct"] for oppo in opponents]) / len(
@@ -130,7 +157,6 @@ def calc_remaining_sos(remaining_opponents, team_exp_records):
 
 
 def main():
-    pp = pprint.PrettyPrinter()
     args = parser.parse_args()
     command_args = dict(vars(args))
 
@@ -144,11 +170,9 @@ def main():
 
     leagues = get_user_leagues(all_leagues, nfl_state)
     for league in leagues:
-        print(f"Getting info for {league.get_league()['name']}")
+        logging.info(pformat(f"Getting info for {league.get_league()['name']}"))
 
         roster_id_map = get_roster_id_map(league)
-
-        score_type = command_args.pop("score_type", None)
 
         teams_faced = dict.fromkeys(list(roster_id_map))
         # need to track teams faced to see oppo win% to date, real and expected?
@@ -158,7 +182,7 @@ def main():
 
         # num_teams - 1 because you don't play yourself
         num_teams = league.get_league()["total_rosters"]
-        # hav ethis and some other things in a dataclass to track "state"?
+        # have this and some other things in a dataclass to track "state"?
         num_matchups = (current_week - 1) * (num_teams - 1)
         team_exp_records = calc_team_expected_record(
             league, expected_wins, roster_id_map, num_matchups
@@ -167,17 +191,20 @@ def main():
         # probably want to figure out a better way for this, too
         # if don't need team_exp_records later, should I keep name and win_pct
         # when calculating team_exp_records?
-        pp.pprint(
-            sorted(
-                [
-                    (team_info["team_name"], team_info["win_pct"])
-                    for team_id, team_info in team_exp_records.items()
-                ],
-                key=lambda tup: tup[1],
-                reverse=True,
+        logging.info(
+            pformat(
+                sorted(
+                    [
+                        (team_info["team_name"], team_info["win_pct"])
+                        for team_id, team_info in team_exp_records.items()
+                    ],
+                    key=lambda tup: tup[1],
+                    reverse=True,
+                )
             )
         )
 
+        # skip if we're in the fantasy playoffs
         if current_week < WEEKS_IN_SEASON:
             remaining_opponents = get_remaining_opponents(
                 league, roster_id_map, current_week
@@ -185,7 +212,7 @@ def main():
             remaining_sos = calc_remaining_sos(remaining_opponents, team_exp_records)
 
             # sort?
-            pp.pprint(remaining_sos)
+            logging.info(pformat(remaining_sos))
 
 
 if __name__ == "__main__":
