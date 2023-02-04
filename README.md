@@ -34,3 +34,4 @@ This repository is all in Python 3.9.1. It is formatted using [black](https://gi
 6. CBS projections need some private helper methods for checking inputs such as ytd/restofseason and constructing the URL
 7. add print methods to sleeper_api_wrapper to match the sleeper docs
 8. Maybe add type hints to it, too. Mypy?
+9. Put my sleeper scripts on streamlit?
