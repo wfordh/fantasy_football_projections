@@ -15,7 +15,7 @@ tqdm = "*"
 chompjs = "1.1.9"
 isort = "*"
 sleeper-api-wrapper = {git = "https://github.com/dtsong/sleeper-api-wrapper.git"}
-urllib3 = "1.26.5"
+urllib3 = "1.26.18"
 
 [requires]
 python_version = "3.9"
