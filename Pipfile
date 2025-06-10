@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-requests = "2.32.2"
+requests = "2.32.4"
 beautifulsoup4 = "4.11.1"
 halo = "*"
 black = "*"
