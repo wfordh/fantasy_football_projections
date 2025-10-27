@@ -11,6 +11,7 @@ from pprint import pformat
 
 import requests
 from sleeper_wrapper import League, User
+from tabulate import tabulate
 from tqdm import tqdm, trange
 
 parser = argparse.ArgumentParser()
@@ -191,16 +192,23 @@ def main():
         # probably want to figure out a better way for this, too
         # if don't need team_exp_records later, should I keep name and win_pct
         # when calculating team_exp_records?
+        sorted_team_records = sorted(
+            [
+                [team_info["team_name"], team_info["win_pct"]]
+                for team_id, team_info in team_exp_records.items()
+            ],
+            key=lambda tup: tup[1],
+            reverse=True,
+        )
+
         logging.info(
             pformat(
-                sorted(
-                    [
-                        (team_info["team_name"], team_info["win_pct"])
-                        for team_id, team_info in team_exp_records.items()
-                    ],
-                    key=lambda tup: tup[1],
-                    reverse=True,
-                )
+                [
+                    f"{i}. {team_record[0]}: {team_record[1]}%"
+                    for i, team_record in zip(
+                        range(1, len(sorted_team_records) + 1), sorted_team_records
+                    )
+                ]
             )
         )
 
@@ -211,8 +219,33 @@ def main():
             )
             remaining_sos = calc_remaining_sos(remaining_opponents, team_exp_records)
 
-            # sort?
-            logging.info(pformat(remaining_sos))
+            sorted_rem_sos = sorted(
+                [(team_name, sos) for team_name, sos in remaining_sos.items()],
+                key=lambda tup: tup[1],
+                reverse=True,
+            )
+            logging.info(
+                pformat(
+                    [
+                        f"{i}. {sos[0]}: {sos[1]}%"
+                        for i, sos in zip(
+                            range(1, len(sorted_rem_sos) + 1), sorted_rem_sos
+                        )
+                    ]
+                )
+            )
+
+            for record in sorted_team_records:
+                record.append(remaining_sos[record[0]])
+
+            print(
+                tabulate(
+                    sorted_team_records,
+                    headers=["Team", "All-play Record", "Remaining SOS"],
+                    showindex=True,
+                    tablefmt="psql",
+                )
+            )
 
 
 if __name__ == "__main__":
