@@ -36,3 +36,6 @@ sleeper-api-wrapper = {file = "../sleeper-api-wrapper"}
 
 [requires]
 python_version = "3.10.9"
+
+[pipenv]
+allow_prereleases = true
